@@ -39,6 +39,11 @@ round flush ceiling lights. Furniture: dark anthracite fabric corner sofa with a
 a mustard accent cushion; handleless matte cashmere-beige kitchen fronts with integrated appliances,
 light stone-look worktop and backsplash, black mixer tap; cream leatherette bar stools on black metal
 bases; gold wire pendant lights; anthracite + walnut cabinetry in bathrooms.
+Staircase: an L-shaped monolithic stair in smooth light-grey polished concrete / microcement (not wood),
+solid sculptural treads and risers, a warm LED strip glowing under the nosing of every step, a slim black
+metal handrail on thin black posts. Entrance hall: calm and stylish — a low built-in bench/shoe cabinet
+in matte anthracite with an oak top along the stair side, an oak slatted wall panel above it with a row of
+black hooks and a slim shelf, a large round mirror, warm wall lights; same white marble-look floor.
 ```
 
 ---
@@ -62,11 +67,42 @@ This view: the living room seen from the kitchen corner, looking towards the fro
   fireplace: smooth white plaster / microcement chimney breast up to the ceiling, a wide glass-fronted
   firebox with a real flame, a slim light-stone or oak mantel shelf.
 - Right of the fireplace, separated from it by a clear strip of white wall: a wide opening to the
-  entrance hall with a glimpse of the oak staircase; keep it as an open passage (no door).
+  entrance hall; keep it as an open passage (no door). Through it you see the hall: the light-grey concrete
+  staircase with LED-lit steps and a black handrail, and the stylish entrance bench with the slatted oak
+  hook panel (see the staircase and hall description above). The brown blocks there are placeholders.
 - Foreground left: the back of a straight dark anthracite fabric sofa with adjustable headrests and two
   armrests — no chaise, no corner part.
 - Foreground right: the breakfast bar attached to the wall on the right — light stone-look worktop,
   cashmere-beige base, with cream bar stools on black bases (two visible here; the brown blocks are
   placeholder stools).
 - Floor: white marble-look porcelain tiles throughout; a soft light rug under the sofa area.
+```
+
+---
+
+## 2. Кухня — `05_int_kitchen`
+
+Файлы: `out/views/05_int_kitchen.png` + стилевые референсы из `refs/style/`.
+
+```
+[общий блок]
+[стиль интерьера]
+
+This view: the kitchen seen from the living area by the fireplace, looking towards the back (north)
+and the right (east) side of the house.
+- Back wall (no window): one straight kitchen run along the whole wall. Replace the white placeholder
+  cabinets with handleless matte cashmere-beige fronts (push-to-open, thin shadow gaps), base units and a
+  full row of wall units above, same sizes and door rhythm. Light stone-look worktop with a matching stone
+  backsplash slab between the base and wall units; warm LED strip under the wall units; an undermount sink
+  with a black mixer tap on the left part and a flush black induction hob on the right part.
+- Right end of the run: the grey block is a tall column — make it a tall cashmere-beige unit with an
+  integrated fridge-freezer behind the same handleless fronts, flush with the run.
+- Right wall: a window with a black aluminium frame in a deep white reveal, and further right a tall
+  black-framed sliding glass door to the terrace; outside: green garden, olive trees, cypresses and rocky
+  mountains in the distance (no sea).
+- Foreground left: the breakfast bar attached to the left wall (out of frame) — light stone-look
+  worktop, cashmere-beige base; the brown blocks are placeholders for three cream leatherette bar stools
+  with low backs on black metal bases. Two gold wire pendant lights hang above the bar.
+- Foreground right: the top of the back of the dark anthracite sofa.
+- Ceiling: smooth white with round flush LED ceiling lights. Floor: white marble-look porcelain tiles.
 ```

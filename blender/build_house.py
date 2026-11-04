@@ -162,7 +162,9 @@ M = {
     "frame": principled("Рамы антрацит", hexc("#2a2b2d"), 0.4),
     "glass": principled("Стекло", hexc("#bcd3dc"), 0.03,
                         **{"Transmission Weight": 1.0, "IOR": 1.45}),
-    "stair": principled("Лестница", hexc("#8a6442"), 0.5),
+    "stair": principled("Лестница бетон", hexc("#bcb7af"), 0.55),
+    "led": principled("LED подсветка", hexc("#fff1d6"), 0.5,
+                      **{"Emission Color": (1.0, 0.9, 0.72, 1.0), "Emission Strength": 6.0}),
     "furn": principled("Мебель", hexc("#dad3c7"), 0.7),
     "screen": principled("Экран", hexc("#1d1f22"), 0.15),
     "fabric": principled("Ткань", hexc("#9d9387"), 0.95),
@@ -397,6 +399,8 @@ def build_stair():
         n += 1
         xa, xb = bx1 - i * t, bx1 - (i - 1) * t
         step(f"ступень {n}", [(xa, cy0), (xb, cy0), (xb, cy1), (xa, cy1)], n)
+        zt = n * r                                # подсветка под носиком ступени
+        box("подсветка", xb - 0.004, cy0 + 0.06, zt - 0.05, xb + 0.006, cy1 - 0.06, zt - 0.035, M["led"], C_GROUND)
     k = math.tan(math.radians(30)) * wdt          # забежные: лучи из внутреннего угла
     winders = [
         [(cx1, cy1), (cx1, cy0), (cx1 - k, cy0)],
@@ -410,13 +414,15 @@ def build_stair():
         n += 1
         ya, yb = cy1 + (j - 1) * t, cy1 + j * t
         step(f"ступень {n}", [(cx0, ya), (cx1, ya), (cx1, yb), (cx0, yb)], n)
+        zt = n * r
+        box("подсветка", cx0 + 0.06, ya - 0.006, zt - 0.05, cx1 - 0.06, ya + 0.004, zt - 0.035, M["led"], C_GROUND)
     # перила вдоль открытого края марша (на 1 этаже)
     yb = ST["top_y"]
     for j in range(0, ST["north"] + 1, 2):
         y = cy1 + j * t + 0.1
         zb = (ST["bottom"] + ST["winders"] + j) * r
-        box("стойка", cx1 - 0.06, y - 0.02, zb, cx1 - 0.02, y + 0.02, zb + 0.9, M["wood"], C_GROUND)
-    rail = box("поручень", cx1 - 0.07, cy1, 0, cx1 - 0.01, yb, 0.05, M["wood"], C_GROUND)
+        box("стойка", cx1 - 0.06, y - 0.02, zb, cx1 - 0.02, y + 0.02, zb + 0.9, M["frame"], C_GROUND)
+    rail = box("поручень", cx1 - 0.07, cy1, 0, cx1 - 0.01, yb, 0.05, M["frame"], C_GROUND)
     me = rail.data
     z_lo = (ST["bottom"] + ST["winders"]) * r + 0.9
     z_hi = (ST["bottom"] + ST["winders"] + ST["north"]) * r + 0.9
