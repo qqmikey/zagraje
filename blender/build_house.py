@@ -162,6 +162,8 @@ M = {
     "stair": principled("Лестница", hexc("#8a6442"), 0.5),
     "furn": principled("Мебель", hexc("#dad3c7"), 0.7),
     "screen": principled("Экран", hexc("#1d1f22"), 0.15),
+    "fabric": principled("Ткань", hexc("#9d9387"), 0.95),
+    "soot": principled("Топка", hexc("#141210"), 0.9),
     "bed": principled("Кровать", hexc("#efe9de"), 0.8),
     "ceramic": principled("Сантехника", hexc("#f4f4f2"), 0.2),
     "grass": principled("Газон", hexc("#6f8a4c"), 0.95),
@@ -406,16 +408,45 @@ FURN_H = {  # (z0, z1, материал)
     "sink": (0.75, 0.88, "ceramic"), "shower": (0.0, 0.05, "ceramic"), "misc": (0.0, 0.8, "furn"),
     "tub": (0.0, 0.55, "ceramic"), "cabinet": (0.0, 2.0, "furn"),
     "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.75, "wood"), "tv_stand": (0.0, 0.5, "furn"),
-    "tv": (0.6, 1.3, "screen"), "fireplace": (0.0, 1.0, "dressed"),
+    "tv": (0.6, 1.3, "screen"), "fireplace": (0.0, 1.05, "dressed"),
+    "sofa_seat": (0.0, 0.44, "fabric"), "sofa_back": (0.0, 0.82, "fabric"), "sofa_arm": (0.0, 0.62, "fabric"),
+    "ottoman": (0.0, 0.42, "fabric"),
 }
+
+
+def build_poly_furniture(f, zf, z0, z1, mat, col):
+    pts = [tuple(p) for p in f["poly"]]
+    prism(f["kind"], pts, zf + z0, zf + z1, M[mat], col)
+    if f["kind"] != "fireplace":
+        return
+    # камин: дымоход до потолка (чуть уже) + тёмная топка на диагональном фасаде
+    cx_, cy_ = pts[0]
+    inner = [(cx_ + (x - cx_) * 0.8, cy_ + (y - cy_) * 0.8) for x, y in pts]
+    prism("дымоход", inner, zf + z1, zf + F2F - SLAB, M["plaster"], col)
+    prism("полка", [(cx_ + (x - cx_) * 1.04, cy_ + (y - cy_) * 1.04) for x, y in pts],
+          zf + z1, zf + z1 + 0.06, M["wood"], col)
+    (ax_, ay_), (bx_, by_) = pts[2], pts[3]                         # диагональная грань
+    mx_, my_ = (ax_ + bx_) / 2, (ay_ + by_) / 2
+    L_ = math.hypot(bx_ - ax_, by_ - ay_)
+    ux, uy = (bx_ - ax_) / L_, (by_ - ay_) / L_
+    nx, ny = uy * -1, ux                                            # наружу, в комнату
+    if nx * (mx_ - cx_) + ny * (my_ - cy_) < 0:
+        nx, ny = -nx, -ny
+    hw = min(0.32, L_ / 2 - 0.08)
+    q = [(mx_ - ux * hw - nx * 0.2, my_ - uy * hw - ny * 0.2), (mx_ + ux * hw - nx * 0.2, my_ + uy * hw - ny * 0.2),
+         (mx_ + ux * hw + nx * 0.01, my_ + uy * hw + ny * 0.01), (mx_ - ux * hw + nx * 0.01, my_ - uy * hw + ny * 0.01)]
+    prism("топка", q, zf + 0.18, zf + 0.72, M["soot"], col)
 
 
 def build_furniture(key, col):
     fl = L["floors"][key]
     for f in fl["furn"]:
         z0, z1, mat = FURN_H.get(f["kind"], FURN_H["misc"])
-        x0, y0, x1, y1 = f["r"]
         zf = fl["z"]
+        if "poly" in f:
+            build_poly_furniture(f, zf, z0, z1, mat, col)
+            continue
+        x0, y0, x1, y1 = f["r"]
         if f["kind"] in ("table", "coffee"):      # столешница на ножках
             box(f["kind"], x0, y0, zf + z1 - 0.04, x1, y1, zf + z1, M[mat], col)
             for lx, ly in ((x0 + 0.05, y0 + 0.05), (x1 - 0.1, y0 + 0.05),

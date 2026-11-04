@@ -61,16 +61,23 @@
       0.9,
       0.4
     ],
-    "fireplace": [
-      1.1,
-      0.6
-    ],
+    "fireplace": {
+      "side": 1.1,
+      "cut": 0.3
+    },
     "sofa": {
       "long": 2.3,
       "leg": 1.8,
       "depth": 0.9,
       "gap_window": 0.15,
-      "gap_fireplace": 0.2
-    }
+      "gap_fireplace": 0.2,
+      "back": 0.22,
+      "arm": 0.2
+    },
+    "ottoman": [
+      0.6,
+      0.55
+    ],
+    "ottoman_gap": 0.05
   }
 }

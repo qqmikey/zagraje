@@ -86,7 +86,7 @@ check(y1 - 0.6 - (_lv["bar_y0"] + _lv["bar_depth"]) >= 0.9, "1 этаж: меж�
 _sf = _lv["sofa"]
 check(y0 + _sf["gap_window"] + _sf["leg"] <= _lv["bar_y0"] - 0.45 - 0.9 + 1e-6,
       "1 этаж: между спинкой дивана и барными стульями меньше 0.9 м прохода")
-check(mx0 + _lv["fireplace"][0] + _sf["gap_fireplace"] + _sf["long"] <= mx1 - _lv["tv_stand"][0] - 0.1,
+check(mx0 + _lv["fireplace"]["side"] + _sf["gap_fireplace"] + _sf["long"] <= mx1 - _lv["tv_stand"][0] - 0.1,
       "1 этаж: длинная часть дивана заезжает на ТВ-тумбу")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - SW_ * (wc_y0 - T - st_top)               # кладовая за маршем
@@ -170,6 +170,13 @@ class Svg:
         self.out.append(
             f'<line x1="{self.X(x0_):.1f}" y1="{self.Y(y0_):.1f}" '
             f'x2="{self.X(x1_):.1f}" y2="{self.Y(y1_):.1f}" class="{cls}"/>')
+
+    def polygon(self, pts, cls, kind="misc"):
+        """Замкнутый многоугольник; мебель-многоугольник уходит в 3D как призма."""
+        if cls in ("furn", "furnd"):
+            self.rec["furn"].append({"kind": kind, "poly": [[round(x, 3), round(y, 3)] for x, y in pts]})
+        d = " ".join(f"{self.X(x):.1f},{self.Y(y):.1f}" for x, y in pts)
+        self.out.append(f'<polygon points="{d}" class="{cls}"/>')
 
     def poly(self, pts, cls):
         d = " ".join(f"{self.X(x):.1f},{self.Y(y):.1f}" for x, y in pts)
@@ -371,20 +378,31 @@ def draw_ground(g_):
     for i in range(n_st):                                          # стулья со стороны гостиной
         sx = mx0 + 0.2 + i * (bl - 0.4) / max(1, n_st - 1) - 0.18 if n_st > 1 else mx0 + bl / 2 - 0.18
         furn(g_, (sx, by0 - 0.45, sx + 0.36, by0 - 0.09), kind="stool")
-    fw_, fd_ = lv["fireplace"]
-    furn(g_, (mx0, y0, mx0 + fw_, y0 + fd_), kind="fireplace", cls="furnd")   # место под камин
-    g_.text(mx0 + fw_ / 2, y0 + fd_ / 2 - 0.05, "камин", "small")
+    fp = lv["fireplace"]                                           # камин в углу, фасад под 45°
+    fa, fc = fp["side"], fp["cut"]
+    g_.polygon([(mx0, y0), (mx0 + fa, y0), (mx0 + fa, y0 + fc), (mx0 + fc, y0 + fa), (mx0, y0 + fa)],
+               "furnd", kind="fireplace")
+    g_.text(mx0 + fa * 0.36, y0 + fa * 0.36 - 0.05, "камин", "small")
     tw_, td_ = lv["tv_stand"]
     furn(g_, (mx1 - tw_, y0, mx1, y0 + td_), kind="tv_stand")      # тумба под ТВ, правый нижний угол
     furn(g_, (mx1 - tw_ / 2 - 0.6, y0 + 0.05, mx1 - tw_ / 2 + 0.6, y0 + 0.12), kind="tv")
     g_.text(mx1 - tw_ / 2, y0 + td_ + 0.15, "ТВ", "small")
     sf = lv["sofa"]                                                # угловой диван, уголок со стороны камина
-    sx0 = mx0 + fw_ + sf["gap_fireplace"]
+    sx0 = mx0 + fa + sf["gap_fireplace"]
     sby = y0 + sf["gap_window"] + sf["leg"]                        # спинка длинной части
-    sdp = sf["depth"]
-    furn(g_, (sx0, sby - sdp, sx0 + sf["long"], sby), kind="sofa")        # длинная часть, лицом к югу
-    furn(g_, (sx0, sby - sf["leg"], sx0 + sdp, sby - sdp), kind="sofa")   # уголок к окну, лицом к ТВ
-    furn(g_, (sx0 + sdp + 0.3, sby - sdp - 0.75, sx0 + sdp + 1.1, sby - sdp - 0.3), kind="coffee")
+    sdp, sbk, sar, sl = sf["depth"], sf["back"], sf["arm"], sf["long"]
+    sx1 = sx0 + sl
+    furn(g_, (sx0, sby - sbk, sx1, sby), kind="sofa_back")         # спинка длинной части
+    furn(g_, (sx0, sby - sf["leg"], sx0 + sbk, sby - sbk), kind="sofa_back")   # спинка уголка
+    furn(g_, (sx1 - sar, sby - sdp, sx1, sby - sbk), kind="sofa_arm")          # подлокотник у ТВ
+    cush_x = [sx0 + sbk, (sx0 + sbk + sx1 - sar) / 2, sx1 - sar]   # две подушки длинной части
+    for a, b in zip(cush_x, cush_x[1:]):
+        furn(g_, (a + 0.01, sby - sdp, b - 0.01, sby - sbk), kind="sofa_seat")
+    furn(g_, (sx0 + sbk, sby - sf["leg"], sx0 + sdp, sby - sdp - 0.01), kind="sofa_seat")  # уголок
+    ow, od = lv["ottoman"]                                         # оттоманка вплотную к дивану
+    ox1 = sx1 - sar - 0.05
+    oy1 = sby - sdp - lv["ottoman_gap"]
+    furn(g_, (ox1 - ow, oy1 - od, ox1, oy1), kind="ottoman")
     tl, tw = g["tub"]
     furn(g_, (ax0, y1 - tl, ax0 + tw, y1), kind="tub")            # ванна у западной стены
     g_.rect(ax0 + 0.08, y1 - tl + 0.08, ax0 + tw - 0.08, y1 - 0.08, "fline")   # чаша ванны
