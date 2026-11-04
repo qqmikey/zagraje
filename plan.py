@@ -83,6 +83,11 @@ check(g["tub"][0] <= g["wc_d"] + 1e-6, "1 этаж: ванна длиннее г
 _lv = P["living"]
 check(g["living_opening_y"][1] <= _lv["bar_y0"] - 0.5 + 1e-6, "1 этаж: проход из холла упирается в барные стулья")
 check(y1 - 0.6 - (_lv["bar_y0"] + _lv["bar_depth"]) >= 0.9, "1 этаж: между стойкой и кухней меньше 0.9 м")
+_sf = _lv["sofa"]
+check(y0 + _sf["gap_window"] + _sf["leg"] <= _lv["bar_y0"] - 0.45 - 0.9 + 1e-6,
+      "1 этаж: между спинкой дивана и барными стульями меньше 0.9 м прохода")
+check(mx0 + _lv["fireplace"][0] + _sf["gap_fireplace"] + _sf["long"] <= mx1 - _lv["tv_stand"][0] - 0.1,
+      "1 этаж: длинная часть дивана заезжает на ТВ-тумбу")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - SW_ * (wc_y0 - T - st_top)               # кладовая за маршем
              - (ax1 - ax0) * (g["wc_d"] + T))
@@ -335,7 +340,9 @@ def draw_ground(g_):
     # перегородки: туалет, кладовая под маршем
     g_.rect(ax0, wc_y0 - T, ax1, wc_y0, "part")                   # холл | санузел
     g_.rect(cx1, stor_y0, cx1 + T, wc_y0 - T, "part")
-    g_.door_v(stor_y0 + 0.25, stor_y0 + 0.95, cx1, cx1 + T, +1)
+    sd0 = wc_y0 - T - 0.85                                          # дверь кладовой у северного конца
+    g_.door_v(sd0, sd0 + 0.7, cx1, cx1 + T, +1)
+    furn(g_, (cx1 + T, cy1 + 0.05, cx1 + T + 0.6, sd0 - 0.1), kind="wardrobe")  # шкаф у подъёма лестницы
     bd0, bd1 = g["bath_door_x"]
     g_.door_h(bd0, bd1, wc_y0 - T, wc_y0, +1, hinge="b")          # в санузел
     # вход: дверь в южной стене пристройки, сразу налево — первая ступень
@@ -371,11 +378,13 @@ def draw_ground(g_):
     furn(g_, (mx1 - tw_, y0, mx1, y0 + td_), kind="tv_stand")      # тумба под ТВ, правый нижний угол
     furn(g_, (mx1 - tw_ / 2 - 0.6, y0 + 0.05, mx1 - tw_ / 2 + 0.6, y0 + 0.12), kind="tv")
     g_.text(mx1 - tw_ / 2, y0 + td_ + 0.15, "ТВ", "small")
-    sw_, sd_ = lv["sofa"]
-    sx0 = mx1 - lv["sofa_gap_east"] - sw_
-    furn(g_, (sx0, lv["sofa_y0"], sx0 + sw_, lv["sofa_y0"] + sd_), kind="sofa")  # диван смотрит на ТВ
-    furn(g_, (sx0 + 0.5, y0 + 1.05, sx0 + sw_ - 0.5, y0 + 1.6), kind="coffee")
-    furn(g_, (ax1 - 0.45, y0 + 1.0, ax1, lo0 - 0.15), kind="wardrobe")   # шкаф для верхней одежды в холле
+    sf = lv["sofa"]                                                # угловой диван, уголок со стороны камина
+    sx0 = mx0 + fw_ + sf["gap_fireplace"]
+    sby = y0 + sf["gap_window"] + sf["leg"]                        # спинка длинной части
+    sdp = sf["depth"]
+    furn(g_, (sx0, sby - sdp, sx0 + sf["long"], sby), kind="sofa")        # длинная часть, лицом к югу
+    furn(g_, (sx0, sby - sf["leg"], sx0 + sdp, sby - sdp), kind="sofa")   # уголок к окну, лицом к ТВ
+    furn(g_, (sx0 + sdp + 0.3, sby - sdp - 0.75, sx0 + sdp + 1.1, sby - sdp - 0.3), kind="coffee")
     tl, tw = g["tub"]
     furn(g_, (ax0, y1 - tl, ax0 + tw, y1), kind="tub")            # ванна у западной стены
     g_.rect(ax0 + 0.08, y1 - tl + 0.08, ax0 + tw - 0.08, y1 - 0.08, "fline")   # чаша ванны
