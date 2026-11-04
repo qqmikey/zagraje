@@ -343,8 +343,10 @@ def bed(g_, x_head, yc, length=2.0, width=1.6, head="east"):
 def bath_line(g_, x0_, x1_, yb0, yb1):
     """Санузел в линию вдоль северной стены: унитаз в левом углу (спиной к западной стене,
     лицом на восток), раковина за дверью, душ в восточном торце."""
-    furn(g_, (x1_ - 0.9, yb1 - 0.9, x1_, yb1), kind="shower")      # душ 0.9x0.9
-    g_.line(x1_ - 0.9, yb1 - 0.9, x1_, yb1, "furn")
+    furn(g_, (x1_ - 0.9, yb0, x1_, yb1), kind="shower")            # душ на всю ширину комнаты
+    g_.line(x1_ - 0.9, yb0, x1_, yb1, "furn")
+    dw = min(0.7, yb1 - yb0 - 0.2)                                 # стеклянная распашная дверь
+    g_.arc(x1_ - 0.9, yb0 + 0.1, dw, math.pi / 2, math.pi, "swing")
     furn(g_, (x0_, yb1 - 0.55, x0_ + 0.65, yb1 - 0.15), kind="toilet")
     sx = cx1 + 1.25                                                # восточнее двери
     furn(g_, (sx, yb1 - 0.45, sx + 0.6, yb1 - 0.02), kind="sink")
@@ -453,8 +455,8 @@ def draw_ground(g_):
     tl, tw = g["tub"]
     furn(g_, (ax0, y1 - tl, ax0 + tw, y1), kind="tub")            # ванна у западной стены
     g_.rect(ax0 + 0.08, y1 - tl + 0.08, ax0 + tw - 0.08, y1 - 0.08, "fline")   # чаша ванны
-    furn(g_, (ax0 + tw + 0.2, y1 - 0.65, ax0 + tw + 0.6, y1 - 0.05), kind="toilet")
-    furn(g_, (bd0 + 0.05, y1 - 0.45, bd0 + 0.65, y1 - 0.02), kind="sink")
+    furn(g_, (ax0 + tw + 0.15, y1 - 0.45, ax0 + tw + 0.75, y1 - 0.02), kind="sink")  # раковина, над ней зеркало
+    furn(g_, (bd0 + 0.15, y1 - 0.65, bd0 + 0.55, y1 - 0.05), kind="toilet")          # унитаз под окном
     furn(g_, (ax1 - 0.5, wc_y0, ax1, y1), kind="cabinet")          # шкаф для хранения
     for r in GROUND:
         if r["name"] != "Лестница":

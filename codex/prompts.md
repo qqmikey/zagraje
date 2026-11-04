@@ -237,9 +237,10 @@ toilet, vanity/basin and cabinets; a grey-green glass panel is the shower screen
 This view: the ground-floor bathroom seen from the door.
 - Far wall (left part of the frame): a built-in bathtub running the full depth of the room, enclosed in
   the same marble-look slabs, with a black wall-mounted bath mixer and a frameless glass splash screen.
-- Centre: the wall-hung toilet with the concealed cistern and flush plate.
-- Right: the vanity with the vessel basin directly under the small window; because the window is above
-  it, put the round backlit mirror on the side wall next to the vanity instead.
+- Centre: the vanity with the vessel basin, and directly above it the large round backlit mirror on the
+  wall (between the bathtub and the window).
+- Right: the wall-hung toilet with the concealed cistern and flush plate, directly under the small window
+  (as in the owner's reference bathroom); a white ladder towel rail on the wall nearby.
 - Behind the camera there is a tall storage cabinet — do not add extra furniture in the frame.
 ```
 
@@ -252,8 +253,11 @@ This view: the ground-floor bathroom seen from the door.
 
 This view: the upstairs shower room (narrow, about 1.1 m deep), seen from the door.
 - Foreground left: the vanity with the vessel basin on the back wall, a round backlit mirror above it.
-- Centre / far end: the walk-in shower in the corner with the frameless glass panel, black rain shower,
-  a lit niche in the marble-look wall.
+- Far end: the shower takes the WHOLE width of the room (wall to wall, about 0.9 m deep), with a flush
+  floor and a linear drain. It is closed by a frameless clear glass enclosure across the full width: a
+  narrow fixed glass panel plus a hinged glass DOOR (black hinges and a slim black handle) that opens
+  outward into the room, so you can walk in. Black rain shower, black hand shower, a lit niche in the
+  marble-look back wall.
 - Right: the door opening to the corridor.
 - The wall-hung toilet is behind the camera — do not add it in the frame. Keep the room narrow and
   realistic; do not widen it.
