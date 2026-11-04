@@ -437,7 +437,8 @@ FURN_H = {  # (z0, z1, материал)
     "coffee": (0.0, 0.4, "wood"), "wardrobe": (0.0, 2.1, "furn"), "toilet": (0.0, 0.42, "ceramic"),
     "sink": (0.75, 0.88, "ceramic"), "shower": (0.0, 0.05, "ceramic"), "misc": (0.0, 0.8, "furn"),
     "tub": (0.0, 0.55, "ceramic"), "cabinet": (0.0, 2.0, "furn"),
-    "wall_cab": (1.45, 2.2, "front"), "sink_k": (0.9, 0.905, "steel"), "cooktop": (0.9, 0.906, "screen"),
+    "wall_cab": (1.45, F2F - SLAB, "front"), "tall_oven": (0.0, F2F - SLAB, "front"),
+    "tall_fridge": (0.0, F2F - SLAB, "front"), "sink_k": (0.9, 0.905, "steel"), "cooktop": (0.9, 0.906, "screen"),
     "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.65, "wood"), "tv_stand": (0.0, 0.5, "furn"),
     "island_top": (0.87, 0.92, "wood"), "island_base": (0.0, 0.87, "furn"),
     "nightstand": (0.0, 0.5, "wood"),
@@ -487,10 +488,22 @@ def kitchen_unit(kind, x0, y0, x1, y1, z0, z1, col, door_w=0.6):
     g = 0.004
     for i in range(n):
         a, b = x0 + i * w + g, x0 + (i + 1) * w - g
-        box("дверка", a, y0, zc0 + g, b, y0 + 0.02, zc1 - g, M["front"], col)
-        hz = (zc1 - 0.09) if base else (zc0 + 0.05)              # ручка: сверху у нижних, снизу у верхних
-        hx = b - 0.06 if i % 2 == 0 else a + 0.04
-        box("ручка", hx, y0 - 0.02, hz, hx + 0.02, y0, hz + 0.14 if base else hz + 0.14, M["steel"], col)
+        box("дверка", a, y0, zc0 + g, b, y0 + 0.02, zc1 - g, M["front"], col)   # без ручек, push-to-open
+
+
+def tall_unit(kind, x0, y0, x1, y1, z0, z1, col):
+    """Колонна до потолка с фасадом на юг: холодильник (2 двери) или духовка + СВЧ (чёрное стекло)."""
+    zc0 = z0 + 0.1
+    box("цоколь", x0, y0 + 0.06, z0, x1, y1, zc0, M["carcass"], col)
+    box("короб", x0, y0 + 0.02, zc0, x1, y1, z1, M["carcass"], col)
+    g = 0.004
+    if kind == "tall_fridge":
+        parts = [(zc0, z0 + 1.85, "front"), (z0 + 1.85, z1, "front")]
+    else:
+        parts = [(zc0, z0 + 0.72, "front"), (z0 + 0.72, z0 + 1.32, "screen"),
+                 (z0 + 1.32, z0 + 1.74, "screen"), (z0 + 1.74, z1, "front")]
+    for za, zb, mat in parts:
+        box("фасад" if mat == "front" else "техника", x0 + g, y0, za + g, x1 - g, y0 + 0.02, zb - g, M[mat], col)
 
 
 def build_furniture(key, col):
@@ -504,6 +517,9 @@ def build_furniture(key, col):
         x0, y0, x1, y1 = f["r"]
         if f.get("front") and f["kind"] in ("counter", "wall_cab"):
             kitchen_unit(f["kind"], x0, y0, x1, y1, zf + z0, zf + z1, col)
+            continue
+        if f.get("front") and f["kind"] in ("tall_oven", "tall_fridge"):
+            tall_unit(f["kind"], x0, y0, x1, y1, zf + z0, zf + z1, col)
             continue
         if f["kind"] in ("table", "coffee"):      # столешница на ножках
             box(f["kind"], x0, y0, zf + z1 - 0.04, x1, y1, zf + z1, M[mat], col)

@@ -19,6 +19,8 @@ opening, window, door, the staircase and every furniture piece at the same posit
 proportion. Do not add or remove windows, doors, walls, rooms or major furniture. Replace only the
 placeholder materials and blocky placeholder furniture with realistic, finished versions of the same
 items in the same footprint, and add lighting, textiles and a little tasteful decor.
+Decor rule: every decorative item is unique in the image — never repeat the same object (no second
+fruit bowl, no identical vases or plants on different surfaces); keep worktops and the bar mostly clear.
 
 The OTHER attached images are style references (photos of the owner's other house in Montenegro and
 approved earlier renders of this project): follow their materials, colours and furniture style, not
@@ -90,19 +92,22 @@ This view: the living room seen from the kitchen corner, looking towards the fro
 
 This view: the kitchen seen from the living area by the fireplace, looking towards the back (north)
 and the right (east) side of the house.
-- Back wall (no window): one straight kitchen run along the whole wall. Replace the white placeholder
-  cabinets with handleless matte cashmere-beige fronts (push-to-open, thin shadow gaps), base units and a
-  full row of wall units above, same sizes and door rhythm. Light stone-look worktop with a matching stone
-  backsplash slab between the base and wall units; warm LED strip under the wall units; an undermount sink
-  with a black mixer tap on the left part and a flush black induction hob on the right part.
-- Right end of the run: the grey block is a tall column — make it a tall cashmere-beige unit with an
-  integrated fridge-freezer behind the same handleless fronts, flush with the run.
+- Back wall (no window): one straight kitchen run along the whole wall. Handleless matte cashmere-beige
+  fronts (push-to-open, thin shadow gaps), same sizes and door rhythm as the draft: base units, and the
+  wall units go all the way up to the ceiling (no gap above them). Light stone-look worktop with a
+  matching stone backsplash slab between base and wall units; warm LED strip under the wall units; an
+  undermount sink with a black mixer tap on the left part and a flush black induction hob on the right.
+- Right end of the run, both floor-to-ceiling and flush with the fronts: first a tall appliance column
+  with a built-in black-glass oven at waist height and a built-in black-glass microwave directly above
+  it (cashmere drawer below, cashmere door above up to the ceiling); then, in the corner, a tall
+  integrated fridge-freezer column hidden behind two cashmere handleless doors up to the ceiling.
 - Right wall: a window with a black aluminium frame in a deep white reveal, and further right a tall
   black-framed sliding glass door to the terrace; outside: green garden, olive trees, cypresses and rocky
   mountains in the distance (no sea).
 - Foreground left: the breakfast bar attached to the left wall (out of frame) — light stone-look
   worktop, cashmere-beige base; the brown blocks are placeholders for three cream leatherette bar stools
-  with low backs on black metal bases. Two gold wire pendant lights hang above the bar.
+  with low backs on black metal bases. Two gold wire pendant lights hang above the bar. The bar top stays
+  almost empty (at most one small item).
 - Foreground right: the top of the back of the dark anthracite sofa.
 - Ceiling: smooth white with round flush LED ceiling lights. Floor: white marble-look porcelain tiles.
 ```

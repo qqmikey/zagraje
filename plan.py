@@ -383,7 +383,8 @@ def draw_ground(g_):
     g_.win_h(ax0 + 1.6, ax0 + 2.2, y1, OY)                        # север, санузел
     # мебель
     kc = P["kitchen"]                                              # кухня вдоль северной стены, без окна
-    kx1 = mx1 - kc["fridge_w"]
+    kfr = mx1 - kc["fridge_w"]                                     # колонна холодильника — в углу
+    kx1 = kfr - kc["oven_col_w"]                                   # колонна духовки + СВЧ — рядом
     furn(g_, (mx0, y1 - 0.6, kx1, y1), kind="counter", front="S")  # нижние шкафы + столешница
     furn(g_, (mx0, y1 - kc["wall_cab_depth"], kx1, y1), kind="wall_cab", cls="furnd", front="S")  # верхний ряд
     n_d = max(1, round((kx1 - mx0) / kc["door_w"]))
@@ -394,8 +395,11 @@ def draw_ground(g_):
     furn(g_, (sk0, y1 - 0.5, sk0 + 0.8, y1 - 0.1), kind="sink_k")  # мойка
     ck0 = mx0 + kc["cooktop_x"]
     furn(g_, (ck0, y1 - 0.52, ck0 + 0.6, y1 - 0.08), kind="cooktop")  # варочная панель
-    furn(g_, (kx1, y1 - 0.65, mx1, y1), kind="fridge", front="S")  # холодильник в край гарнитура
-    g_.text((kx1 + mx1) / 2, y1 - 0.38, "хол.", "small")
+    furn(g_, (kx1, y1 - 0.65, kfr, y1), kind="tall_oven", front="S")   # духовка, над ней СВЧ, до потолка
+    furn(g_, (kfr, y1 - 0.65, mx1, y1), kind="tall_fridge", front="S")  # встроенный холодильник, до потолка
+    g_.text((kx1 + kfr) / 2, y1 - 0.3, "дух.", "small")
+    g_.text((kx1 + kfr) / 2, y1 - 0.5, "СВЧ", "small")
+    g_.text((kfr + mx1) / 2, y1 - 0.38, "хол.", "small")
     lv = P["living"]
     br = lv["bar"]                                                 # барная стойка от левой стены
     ix0, ix1 = mx0, mx0 + br["len"]
