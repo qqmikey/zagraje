@@ -802,8 +802,10 @@ def codex_views():
     return {
         "00_site_top": (top, ext),
         "01_ext_aerial_se": (camera("V01 сверху с юго-востока", (OX + 15, -19, 15), (cx + 2.0, cy - 2.5, 1.0), 32), ext),
-        "02_ext_road_sw": (camera("V02 с дорожки, юго-запад", (-5.5, -9.5, e), (cx + 0.5, cy, 3.0), 26), ext),
-        "03_ext_east": (camera("V03 сторона перголы, восток", (OX + 10, cy + 3.5, e), (cx, cy - 0.5, 3.0), 26), ext),
+        "02_ext_road_sw": (camera("V02 с улицы у калитки", (cx + 4.5, -s["gap_south"] - 1.6, e + 0.15),
+                                  (cx - 0.8, cy - 1.0, 2.6), 19), ext),
+        "03_ext_east": (camera("V03 бассейн и пергола", (OX + s["gap_east"] - 1.5, -s["gap_south"] + 0.9, e),
+                               (OX + 0.3, cy - 0.5, 1.9), 22), ext),
         "04_int_living": (camera("V04 гостиная: камин, диван, ТВ", (mx1 - 0.35, y1 - 1.05, e - 0.1),
                                  (mx0 + 1.0, y0 + 0.6, 0.9), 16), gf),
         "05_int_kitchen": (camera("V05 кухня и барная стойка", (mx0 + 1.45, y0 + 1.25, e - 0.1),

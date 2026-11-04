@@ -262,3 +262,64 @@ This view: the upstairs shower room (narrow, about 1.1 m deep), seen from the do
 - The wall-hung toilet is behind the camera — do not add it in the frame. Keep the room narrow and
   realistic; do not widen it.
 ```
+
+---
+
+## Экстерьер — общий стиль (вставляется в промпты 9–11)
+
+```
+Exterior style: a restored traditional stone house in a village above Bar, coastal Montenegro. Thick
+walls of light grey-beige local limestone rubble masonry with lime mortar joints (natural, irregular,
+slightly weathered stones, larger dressed quoin stones at the corners); smooth light dressed-stone
+surrounds, lintels and sills around every window and door; slim anthracite aluminium windows and an
+anthracite front door; a low hip roof with traditional terracotta curved clay tiles (Mediterranean
+"kanalica"), a thin eave; no gutters visible. Garden: neat lawn, local light limestone paving, olive
+trees with silver-green leaves and twisted trunks, tall slim dark cypresses, lavender and rosemary
+beds, a clipped green hedge along the side boundary; the front fence is a low stone plinth with a black
+vertical-bar metal railing, a black sliding car gate and a matching pedestrian gate between stone
+pillars. Pergola: warm natural oak/teak beams and slats, a terrace deck of brown composite boards under
+it with an outdoor lounge set (dark metal-frame sofa with anthracite cushions, a round grey pouf) and
+a beige umbrella. Pool: light limestone coping and paving, turquoise mosaic water, two wooden sun
+loungers with white cushions. Background: green Mediterranean hills and rocky grey mountains, blue sky
+with a few white clouds, warm late-morning sun. Placeholders in the draft: green blobs are olive trees,
+green cones are cypresses, green boxes are hedges.
+```
+
+## 9. Вид сверху с юго-востока — `01_ext_aerial_se`
+
+```
+[общий блок]
+[стиль экстерьера]
+
+This view: a high drone view of the whole plot from the front-right corner. Show the house, the front
+fence along the lane with the gates, the parking on the front-left, the entry path to the front door,
+the pool in the front-right corner and the pergola terrace on the right side of the house, the hedge and
+cypresses at the back-right. A white compact car parked on the parking. Keep the lane in the
+foreground as a light concrete village path.
+```
+
+## 10. С улицы у калитки — `02_ext_road_sw`
+
+```
+[общий блок]
+[стиль экстерьера]
+
+This view: eye level from the lane outside the front fence, looking at the front (south) facade over
+the black railing. The front door with the small window to its left and the living-room window to its
+right on the ground floor, two windows upstairs. Keep the railing in the foreground sharp; the corner of
+the pergola and the pool are just visible on the right, an olive tree on the left by the parking.
+```
+
+## 11. Бассейн и пергола — `03_ext_east`
+
+```
+[общий блок]
+[стиль экстерьера]
+
+This view: eye level from the far corner of the garden behind the pool, looking at the house and the
+pergola. Foreground: the pool with light limestone coping, two wooden sun loungers with white cushions
+on the paving at its side. Middle: the pergola terrace against the side wall of the house with the
+outdoor lounge set under it and the black-framed sliding glass door behind it. Right: a large olive
+tree, the clipped hedge and two cypresses behind it. Left: the front corner of the house with its
+windows and front door.
+```
