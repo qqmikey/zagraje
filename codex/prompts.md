@@ -117,15 +117,18 @@ and the right (east) side of the house.
 ## Спальни — общий стиль (вставляется в промпты 3–5)
 
 ```
-Bedroom style: a calm, modern, hotel-like bedroom in the same palette as the rest of the house. White
-walls; one accent wall behind the bed with a full-height upholstered or fluted panel headboard in warm
-greige / soft taupe; a low upholstered bed with crisp white and sand linen bedding, a light throw and a
-few cushions. Two matching floating nightstands (walnut or anthracite with walnut top) on both sides of
-the bed, each with a small black or brass wall sconce or a slim pendant above it. Large soft wool rug
-under the bed on the white marble-look floor. Slim linen-coloured roller blinds recessed in the deep white
-window reveals (no heavy curtains). Black aluminium window frames. Soft warm daylight, a ceiling light.
-Placeholders in the draft: the white block with a pillow strip is the bed, the small brown blocks next to
-it are the nightstands, a tall block in a niche is a built-in wardrobe.
+Bedroom style: a stylish, rich, magazine-worthy modern bedroom — calm but not bland. White ceiling and
+side walls; the wall behind the bed is the feature wall painted in a deep, saturated colour (given per
+room below) with a full-height upholstered or vertically fluted headboard panel in a tone-on-tone shade.
+Low upholstered bed with layered linen bedding in sand / cream with a textured throw and a few cushions
+picking up the feature colour. Two matching floating nightstands (walnut, or anthracite with a walnut top)
+on both sides of the bed, each with a brass or black wall sconce or a slim pendant. On the walls: one
+large piece of framed art or a pair of framed prints above the headboard, a slim picture ledge or a
+round mirror where it fits; a tall plant (olive tree or fiddle-leaf) in a ceramic pot; a soft large wool
+rug under the bed on the white marble-look floor. Slim linen roller blinds recessed in the deep white
+window reveals (no heavy curtains), black aluminium frames. Warm daylight plus warm accent lighting.
+Every decorative item appears only once. Placeholders in the draft: the white block with a pillow strip
+is the bed, the small brown blocks next to it are the nightstands.
 ```
 
 ## 3. Спальня 1 — `07_int_bedroom1`
@@ -136,6 +139,7 @@ it are the nightstands, a tall block in a niche is a built-in wardrobe.
 [стиль спальни]
 
 This view: bedroom 1 (above the entrance hall), seen from the door.
+- Feature colour: deep olive / sage green, with brass accents and warm oak.
 - The bed stands in the middle with its headboard against the far wall: make the far wall the accent
   headboard wall with the two nightstands and sconces.
 - The window with a black frame in a deep white reveal is in the wall on the left; outside: olive trees,
@@ -152,6 +156,7 @@ This view: bedroom 1 (above the entrance hall), seen from the door.
 [стиль спальни]
 
 This view: bedroom 2 (front corner of the house), seen from the door.
+- Feature colour: warm terracotta / clay, with cream, rattan and black accents.
 - The bed stands with its headboard against the far wall, under the narrower window: keep that window
   above the headboard (a low panel headboard below the sill), nightstands on both sides.
 - A second, wider window with a black frame in the wall on the right; outside: olive trees, cypresses,
@@ -168,6 +173,7 @@ This view: bedroom 2 (front corner of the house), seen from the door.
 [стиль спальни]
 
 This view: bedroom 3 (back corner of the house), seen from the door.
+- Feature colour: dusty denim blue, with natural linen, light oak and brass accents.
 - The bed (a narrower 140 cm double) stands with its headboard against the wall on the right, under the
   window there: keep that window above the headboard (a low panel headboard below the sill), nightstands
   on both sides.
