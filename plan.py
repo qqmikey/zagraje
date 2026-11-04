@@ -89,8 +89,11 @@ check(_il["len"] / _il["seats"] >= 0.55, "1 этаж: на острове мен
 _sf = _lv["sofa"]
 check(y0 + _sf["gap_window"] + _sf["leg"] <= _iy0 - 0.42 - 0.9 + 1e-6,
       "1 этаж: между спинкой дивана и стульями у острова меньше 0.9 м прохода")
-check(mx0 + _lv["fireplace"]["side"] + _sf["gap_fireplace"] + _sf["long"] <= mx1 - _lv["tv_stand"][0] - 0.1,
-      "1 этаж: длинная часть дивана заезжает на ТВ-тумбу")
+check(_sf["x0"] >= _lv["fireplace"]["side"] + 0.1, "1 этаж: диван упирается в камин")
+check(mx1 - (mx0 + _sf["x0"] + _sf["long"]) >= 0.7 - 1e-6, "1 этаж: от дивана до раздвижной двери меньше 0.7 м")
+check(y0 + _sf["gap_window"] + _sf["leg"] - _sf["depth"] >= y0 + _lv["tv_stand"][1] + 0.3
+      or mx0 + _sf["x0"] + _sf["long"] <= mx1 - _lv["tv_stand"][0],
+      "1 этаж: диван налезает на ТВ-тумбу")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - SW_ * (wc_y0 - T - st_top)               # кладовая за маршем
              - (ax1 - ax0) * (g["wc_d"] + T))
@@ -396,7 +399,7 @@ def draw_ground(g_):
     furn(g_, (mx1 - tw_ / 2 - 0.6, y0 + 0.05, mx1 - tw_ / 2 + 0.6, y0 + 0.12), kind="tv")
     g_.text(mx1 - tw_ / 2, y0 + td_ + 0.15, "ТВ", "small")
     sf = lv["sofa"]                                                # угловой диван, уголок со стороны камина
-    sx0 = mx0 + fa + sf["gap_fireplace"]
+    sx0 = mx0 + sf["x0"]                                           # левый край дивана от левой стены гостиной
     sby = y0 + sf["gap_window"] + sf["leg"]                        # спинка длинной части
     sdp, sbk, sar, sl = sf["depth"], sf["back"], sf["arm"], sf["long"]
     sx1 = sx0 + sl
