@@ -409,6 +409,7 @@ FURN_H = {  # (z0, z1, материал)
     "tub": (0.0, 0.55, "ceramic"), "cabinet": (0.0, 2.0, "furn"),
     "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.65, "wood"), "tv_stand": (0.0, 0.5, "furn"),
     "island_top": (0.87, 0.92, "wood"), "island_base": (0.0, 0.87, "furn"),
+    "shoe_bench": (0.0, 0.45, "wood"), "coat_panel": (1.15, 1.95, "wood"), "hat_shelf": (1.85, 1.89, "wood"),
     "tv": (0.6, 1.3, "screen"), "fireplace": (0.0, 1.05, "dressed"),
     "sofa_seat": (0.0, 0.44, "fabric"), "sofa_back": (0.0, 0.82, "fabric"), "sofa_arm": (0.0, 0.62, "fabric"),
     "ottoman": (0.0, 0.42, "fabric"),
@@ -455,6 +456,11 @@ def build_furniture(key, col):
                 box("ножка", lx, ly, zf, lx + 0.05, ly + 0.05, zf + z1 - 0.04, M[mat], col)
             continue
         box(f["kind"], x0, y0, zf + z0, x1, y1, zf + z1, M[mat], col)
+        if f["kind"] == "coat_panel":   # крючки на панели
+            n = max(2, int((y1 - y0) / 0.3))
+            for i in range(n):
+                hy = y0 + (i + 0.5) * (y1 - y0) / n
+                box("крючок", x1, hy - 0.015, zf + 1.6, x1 + 0.07, hy + 0.015, zf + 1.64, M["wood"], col)
         if f["kind"] == "shower":   # стеклянная перегородка душа
             box("душ стекло", x0, y0, fl["z"], x0 + 0.01, y1, fl["z"] + 2.0, M["glass"], col)
 
