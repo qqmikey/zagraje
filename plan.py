@@ -81,11 +81,14 @@ stor_y0 = cy1 + 3 * TR                   # под маршем, где высо�
 check(wc_y0 - T >= st_top, "1 этаж: санузел налезает на марш лестницы")
 check(g["tub"][0] <= g["wc_d"] + 1e-6, "1 этаж: ванна длиннее глубины санузла")
 _lv = P["living"]
-check(g["living_opening_y"][1] <= _lv["bar_y0"] - 0.5 + 1e-6, "1 этаж: проход из холла упирается в барные стулья")
-check(y1 - 0.6 - (_lv["bar_y0"] + _lv["bar_depth"]) >= 0.9, "1 этаж: между стойкой и кухней меньше 0.9 м")
+_il = _lv["island"]
+_iy0 = y1 - 0.6 - _il["aisle_kitchen"] - _il["depth"]
+check(_il["aisle_kitchen"] >= 0.9, "1 этаж: между островом и кухней меньше 0.9 м")
+check(mx0 + _il["gap_left"] + _il["len"] <= mx1 - 0.9, "1 этаж: справа от острова меньше 0.9 м прохода")
+check(_il["len"] / _il["seats"] >= 0.55, "1 этаж: на острове меньше 55 см на место")
 _sf = _lv["sofa"]
-check(y0 + _sf["gap_window"] + _sf["leg"] <= _lv["bar_y0"] - 0.45 - 0.9 + 1e-6,
-      "1 этаж: между спинкой дивана и барными стульями меньше 0.9 м прохода")
+check(y0 + _sf["gap_window"] + _sf["leg"] <= _iy0 - 0.42 - 0.9 + 1e-6,
+      "1 этаж: между спинкой дивана и стульями у острова меньше 0.9 м прохода")
 check(mx0 + _lv["fireplace"]["side"] + _sf["gap_fireplace"] + _sf["long"] <= mx1 - _lv["tv_stand"][0] - 0.1,
       "1 этаж: длинная часть дивана заезжает на ТВ-тумбу")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
@@ -93,7 +96,7 @@ hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - (ax1 - ax0) * (g["wc_d"] + T))
 GROUND = [
     R("Кухня-гостиная", mx0, y0, mx1, y1,
-      label_at=((mx0 + P["living"]["bar_len"] + mx1) / 2, P["living"]["bar_y0"] + 0.75)),
+      label_at=((mx0 + mx1) / 2, y1 - 0.6 - P["living"]["island"]["aisle_kitchen"] / 2 + 0.05)),
     R("Прихожая-холл", cx1, cy1, ax1, wc_y0, area=hall_area),
     R("Санузел с ванной", ax0, wc_y0, ax1, y1),
     R("Кладовая", cx0, stor_y0, cx1, wc_y0 - T, "под лестницей"),
@@ -372,12 +375,17 @@ def draw_ground(g_):
     furn(g_, (mx0, y1 - 0.6, mx0 + 3.0, y1), kind="counter")      # кухня вдоль северной стены
     furn(g_, (mx1 - 0.6, y1 - 0.6, mx1, y1), kind="fridge")
     lv = P["living"]
-    bl, bd, by0 = lv["bar_len"], lv["bar_depth"], lv["bar_y0"]
-    furn(g_, (mx0, by0, mx0 + bl, by0 + bd), kind="bar")           # барная стойка от левой стены
-    n_st = max(1, int(bl // 0.5))
+    il = lv["island"]                                              # остров: отдельно от стен, 4 места с юга
+    ix0, ix1 = mx0 + il["gap_left"], mx0 + il["gap_left"] + il["len"]
+    iy1 = y1 - 0.6 - il["aisle_kitchen"]                           # северный край: проход до кухни
+    iy0 = iy1 - il["depth"]
+    furn(g_, (ix0, iy0, ix1, iy1), kind="island_top")              # столешница со свесом для коленей
+    furn(g_, (ix0 + 0.05, iy0 + il["overhang"], ix1 - 0.05, iy1 - 0.05), kind="island_base", cls="furnd")
+    n_st = il["seats"]
+    pitch = il["len"] / n_st
     for i in range(n_st):                                          # стулья со стороны гостиной
-        sx = mx0 + 0.2 + i * (bl - 0.4) / max(1, n_st - 1) - 0.18 if n_st > 1 else mx0 + bl / 2 - 0.18
-        furn(g_, (sx, by0 - 0.45, sx + 0.36, by0 - 0.09), kind="stool")
+        sx = ix0 + pitch * (i + 0.5) - 0.19
+        furn(g_, (sx, iy0 - 0.42, sx + 0.38, iy0 - 0.04), kind="stool")
     fp = lv["fireplace"]                                           # камин в углу, фасад под 45°
     fa, fc = fp["side"], fp["cut"]
     g_.polygon([(mx0, y0), (mx0 + fa, y0), (mx0 + fa, y0 + fc), (mx0 + fc, y0 + fa), (mx0, y0 + fa)],
