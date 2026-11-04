@@ -328,6 +328,10 @@ def furn(g_, *rects, cls="furn", kind="misc", front=None):
 
 
 def bed(g_, x_head, yc, length=2.0, width=1.6, head="east"):
+    ns_w, ns_d = 0.45, 0.4                                         # тумбочки по обе стороны изголовья
+    nx0, nx1 = (x_head - ns_d, x_head) if head == "east" else (x_head, x_head + ns_d)
+    for ny0 in (yc - width / 2 - 0.05 - ns_w, yc + width / 2 + 0.05):
+        furn(g_, (nx0, ny0, nx1, ny0 + ns_w), kind="nightstand")
     if head == "east":
         furn(g_, (x_head - length, yc - width / 2, x_head, yc + width / 2), kind="bed")
         furn(g_, (x_head - 0.45, yc - width / 2 + 0.1, x_head - 0.1, yc + width / 2 - 0.1), kind="pillow")
@@ -655,7 +659,8 @@ def main():
         recs[up_fn.__name__] = g_.rec
     layout = {"params": P,
               "derived": {"x": {"ax0": ax0, "ax1": ax1, "iw0": iw0, "iw1": iw1, "mx0": mx0, "mx1": mx1},
-                          "y": {"y0": y0, "y1": y1},
+                          "y": {"y0": y0, "y1": y1, "corr0": round(corr0, 3), "corr1": round(corr1, 3),
+                                "esp": P["upper_b"]["east_split_y"]},
                           "stair": {"risers": RISERS, "riser": round(RISER, 4), "treads": TREADS,
                                     "tread": TR, "width": SW_, "bottom": N1, "winders": NW_, "north": N2,
                                     "cx0": cx0, "cx1": cx1, "cy0": cy0, "cy1": cy1,

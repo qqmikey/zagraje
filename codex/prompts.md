@@ -106,3 +106,67 @@ and the right (east) side of the house.
 - Foreground right: the top of the back of the dark anthracite sofa.
 - Ceiling: smooth white with round flush LED ceiling lights. Floor: white marble-look porcelain tiles.
 ```
+
+---
+
+## Спальни — общий стиль (вставляется в промпты 3–5)
+
+```
+Bedroom style: a calm, modern, hotel-like bedroom in the same palette as the rest of the house. White
+walls; one accent wall behind the bed with a full-height upholstered or fluted panel headboard in warm
+greige / soft taupe; a low upholstered bed with crisp white and sand linen bedding, a light throw and a
+few cushions. Two matching floating nightstands (walnut or anthracite with walnut top) on both sides of
+the bed, each with a small black or brass wall sconce or a slim pendant above it. Large soft wool rug
+under the bed on the white marble-look floor. Slim linen-coloured roller blinds recessed in the deep white
+window reveals (no heavy curtains). Black aluminium window frames. Soft warm daylight, a ceiling light.
+Placeholders in the draft: the white block with a pillow strip is the bed, the small brown blocks next to
+it are the nightstands, a tall block in a niche is a built-in wardrobe.
+```
+
+## 3. Спальня 1 — `07_int_bedroom1`
+
+```
+[общий блок]
+[стиль интерьера]
+[стиль спальни]
+
+This view: bedroom 1 (above the entrance hall), seen from the door.
+- The bed stands in the middle with its headboard against the far wall: make the far wall the accent
+  headboard wall with the two nightstands and sconces.
+- The window with a black frame in a deep white reveal is in the wall on the left; outside: olive trees,
+  cypresses and rocky mountains (no sea).
+- On the right: the corner of the wall by the door.
+- Keep the room compact and uncluttered: no extra wardrobes or desks beyond what is in the draft.
+```
+
+## 4. Спальня 2 — `08_int_bedroom2`
+
+```
+[общий блок]
+[стиль интерьера]
+[стиль спальни]
+
+This view: bedroom 2 (front corner of the house), seen from the door.
+- The bed stands with its headboard against the far wall, under the narrower window: keep that window
+  above the headboard (a low panel headboard below the sill), nightstands on both sides.
+- A second, wider window with a black frame in the wall on the right; outside: olive trees, cypresses,
+  rocky mountains (no sea).
+- Behind the camera / at the edge of the frame: a built-in wardrobe niche — handleless cashmere-beige or
+  white fronts flush with the wall.
+```
+
+## 5. Спальня 3 — `09_int_bedroom3`
+
+```
+[общий блок]
+[стиль интерьера]
+[стиль спальни]
+
+This view: bedroom 3 (back corner of the house), seen from the door.
+- The bed (a narrower 140 cm double) stands with its headboard against the wall on the right, under the
+  window there: keep that window above the headboard (a low panel headboard below the sill), nightstands
+  on both sides.
+- A second window with a black frame in the wall on the left; outside: garden greenery, olive trees and
+  mountains (no sea).
+- The built-in wardrobe niche is behind the camera — do not add other wardrobes.
+```

@@ -22,8 +22,10 @@ def blocks(md):
     res, sec = {}, None
     for part in re.split(r"^## ", md, flags=re.M)[1:]:
         title = part.splitlines()[0]
-        m = re.search(r"`(\d\d_[a-z_]+)`", title)
-        sec = m.group(1) if m else ("common" if "Общий" in title else "style" if "Стиль" in title else title)
+        m = re.search(r"`(\d\d_[a-z0-9_]+)`", title)
+        sec = m.group(1) if m else ("common" if "Общий" in title else
+                                    "bedroom_style" if "Спальни" in title else
+                                    "style" if "Стиль" in title else title)
         code = re.findall(r"```\n(.*?)```", part, flags=re.S)
         if code:
             res[sec] = code[0].strip()
@@ -50,7 +52,8 @@ def main():
     while (OUT / f"{view}_v{n}.png").exists():
         n += 1
     target = OUT / f"{view}_v{n}.png"
-    prompt = "\n\n".join([common] + ([b["style"]] if is_int else []) + [body]) + (
+    extra = [b["bedroom_style"]] if "bedroom" in view and "bedroom_style" in b else []
+    prompt = "\n\n".join([common] + ([b["style"]] if is_int else []) + extra + [body]) + (
         f"\n\nGenerate this image with your image generation tool and save the final image as PNG to "
         f"{target.relative_to(ROOT)} (create the folder if needed). Do not modify any other files. "
         f"When done, reply with the saved path only.")

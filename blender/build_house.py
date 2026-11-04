@@ -23,7 +23,7 @@ P, D = L["params"], L["derived"]
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 RENDER = "--render" in ARGS
 VIEWS = "--views" in ARGS          # ракурсы для генерации картинок (out/views/)
-ONLY = next((a.split("=", 1)[1] for a in ARGS if a.startswith("--only=")), None)   # --only=04 — один ракурс
+ONLY = next((a.split("=", 1)[1].split(",") for a in ARGS if a.startswith("--only=")), None)  # --only=07,08
 SAMPLES = 96
 
 W, OX, OY = P["wall"], P["outer_x"], P["outer_y"]
@@ -250,7 +250,7 @@ def plaster_inside(ob):
         n = poly.normal
         outside = ((abs(c.x) < EPS and n.x < -0.5) or (abs(c.x - OX) < EPS and n.x > 0.5)
                    or (abs(c.y) < EPS and n.y < -0.5) or (abs(c.y - OY) < EPS and n.y > 0.5)
-                   or n.z > 0.5)
+                   or (n.z > 0.5 and c.z > EAVE - 0.01))   # подоконники внутри — штукатурка
         if not outside:
             poly.material_index = k
 
@@ -440,6 +440,7 @@ FURN_H = {  # (z0, z1, материал)
     "wall_cab": (1.45, 2.2, "front"), "sink_k": (0.9, 0.905, "steel"), "cooktop": (0.9, 0.906, "screen"),
     "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.65, "wood"), "tv_stand": (0.0, 0.5, "furn"),
     "island_top": (0.87, 0.92, "wood"), "island_base": (0.0, 0.87, "furn"),
+    "nightstand": (0.0, 0.5, "wood"),
     "shoe_bench": (0.0, 0.45, "wood"), "coat_panel": (1.15, 1.95, "wood"), "hat_shelf": (1.85, 1.89, "wood"),
     "tv": (0.6, 1.3, "screen"), "fireplace": (0.0, 1.05, "dressed"),
     "sofa_seat": (0.0, 0.44, "fabric"), "sofa_back": (0.0, 0.82, "fabric"), "sofa_arm": (0.0, 0.62, "fabric"),
@@ -654,9 +655,13 @@ def codex_views():
                                   (mx1 - 1.0, y1 - 0.2, 1.3), 18), gf),
         "06_int_hall_stair": (camera("V06 холл и лестница", (ax1 - 0.3, y1 - 1.95, e),
                                      (ax0 + 0.5, y0 + 0.4, 0.9), 16), gf),
-        "07_int_bedroom": (camera("V07 спальня 2", (mx1 - 3.0, y0 + 2.45, F2F + e),
-                                  (mx1 - 0.2, y0 + 0.4, F2F + 0.8), 16), gf),
-        "08_int_bath_tub": (camera("V08 санузел с ванной", (ax1 - 0.75, y1 - 1.55, e),
+        "07_int_bedroom1": (camera("V07 спальня 1", (x["iw1"] + 0.2, y["corr0"] - 0.3, F2F + e),
+                                   (ax0 + 1.2, y0 + 1.6, F2F + 0.7), 16), gf),
+        "08_int_bedroom2": (camera("V08 спальня 2", (mx1 - 3.0, y0 + 2.45, F2F + e),
+                                   (mx1 - 0.2, y0 + 0.4, F2F + 0.8), 16), gf),
+        "09_int_bedroom3": (camera("V09 спальня 3", (mx1 - 3.0, y["esp"] + 0.3, F2F + e),
+                                   (mx1 - 0.2, y1 - 0.4, F2F + 0.8), 16), gf),
+        "10_int_bath_tub": (camera("V10 санузел с ванной", (ax1 - 0.75, y1 - 1.55, e),
                                    (ax0 + 0.3, y1 - 0.3, 0.8), 14), gf),
     }
 
@@ -706,7 +711,7 @@ def main():
         vout.mkdir(exist_ok=True)
         scene.render.resolution_x, scene.render.resolution_y = 1536, 1024
         for name, (cam, cols) in codex_views().items():
-            if ONLY and not name.startswith(ONLY):
+            if ONLY and not any(name.startswith(o) for o in ONLY):
                 continue
             set_visible(*cols)
             scene.cycles.samples = 256 if "_int_" in name else SAMPLES
