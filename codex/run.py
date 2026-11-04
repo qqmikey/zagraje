@@ -26,6 +26,7 @@ def blocks(md):
         m = re.search(r"`(\d\d_[a-z0-9_]+)`", title)
         sec = m.group(1) if m else ("common" if "Общий" in title else
                                     "bedroom_style" if "Спальни" in title else
+                                    "bath_style" if "Санузлы" in title else
                                     "style" if "Стиль" in title else title)
         code = re.findall(r"```\n(.*?)```", part, flags=re.S)
         if code:
@@ -53,7 +54,8 @@ def main():
     while (OUT / f"{view}_v{n}.png").exists():
         n += 1
     target = OUT / f"{view}_v{n}.png"
-    extra = [b["bedroom_style"]] if "bedroom" in view and "bedroom_style" in b else []
+    extra = ([b["bedroom_style"]] if "bedroom" in view and "bedroom_style" in b else []) + \
+            ([b["bath_style"]] if "_bath" in view and "bath_style" in b else [])
     prompt = "\n\n".join([common] + ([b["style"]] if is_int else []) + extra + [body]) + (
         f"\n\nGenerate this image with your image generation tool and save the final image as PNG to "
         f"{target.relative_to(ROOT)} (create the folder if needed). Do not modify any other files. "

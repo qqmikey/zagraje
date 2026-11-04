@@ -210,3 +210,51 @@ This view: the entrance hall seen from the passage to the living room.
 - You may refine details (shadow gaps, lighting, one plant, one rug) to make it stylish — but keep the
   layout, the stair, the door and the entrance unit where they are in the draft.
 ```
+
+---
+
+## Санузлы — общий стиль (вставляется в промпты 7–8)
+
+```
+Bathroom style (as in the owner's other house): floor and walls in large-format polished white
+marble-look porcelain slabs with soft grey and warm gold veins, laid floor-to-ceiling; wall-hung white
+toilet with a concealed cistern and a slim white flush plate; walk-in shower with a frameless clear glass
+panel, black rain shower and black hand shower, a recessed lit niche; vanity unit in matte anthracite
+with a walnut top and an oval white vessel basin with a tall black mixer; a large round mirror with
+warm LED backlight where there is a free wall; a white ladder heated towel rail; a tall anthracite +
+walnut storage cabinet with a few open shelves of rolled towels. Warm soft lighting, black accessories.
+Every decorative item appears only once. Placeholders in the draft: white blocks are the bathtub,
+toilet, vanity/basin and cabinets; a grey-green glass panel is the shower screen.
+```
+
+## 7. Санузел с ванной, 1 этаж — `10_int_bath_tub`
+
+```
+[общий блок]
+[стиль интерьера]
+[стиль санузла]
+
+This view: the ground-floor bathroom seen from the door.
+- Far wall (left part of the frame): a built-in bathtub running the full depth of the room, enclosed in
+  the same marble-look slabs, with a black wall-mounted bath mixer and a frameless glass splash screen.
+- Centre: the wall-hung toilet with the concealed cistern and flush plate.
+- Right: the vanity with the vessel basin directly under the small window; because the window is above
+  it, put the round backlit mirror on the side wall next to the vanity instead.
+- Behind the camera there is a tall storage cabinet — do not add extra furniture in the frame.
+```
+
+## 8. Санузел с душем, 2 этаж — `11_int_bath_up`
+
+```
+[общий блок]
+[стиль интерьера]
+[стиль санузла]
+
+This view: the upstairs shower room (narrow, about 1.1 m deep), seen from the door.
+- Foreground left: the vanity with the vessel basin on the back wall, a round backlit mirror above it.
+- Centre / far end: the walk-in shower in the corner with the frameless glass panel, black rain shower,
+  a lit niche in the marble-look wall.
+- Right: the door opening to the corridor.
+- The wall-hung toilet is behind the camera — do not add it in the frame. Keep the room narrow and
+  realistic; do not widen it.
+```
