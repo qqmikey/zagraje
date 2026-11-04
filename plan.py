@@ -427,13 +427,20 @@ def draw_ground(g_):
     sdp, sbk, sar = sf["depth"], sf["back"], sf["arm"]
     sl = (mx1 - sf.get("east_gap", 0.0) - sx0) if sf.get("to_east_wall") else sf["long"]  # до правой стены
     sx1 = sx0 + sl
+    corner = sf.get("corner", True)
     furn(g_, (sx0, sby - sbk, sx1, sby), kind="sofa_back")         # спинка длинной части
-    furn(g_, (sx0, sby - sf["leg"], sx0 + sbk, sby - sbk), kind="sofa_back")   # спинка уголка
     furn(g_, (sx1 - sar, sby - sdp, sx1, sby - sbk), kind="sofa_arm")          # подлокотник у ТВ
-    cush_x = [sx0 + sbk, (sx0 + sbk + sx1 - sar) / 2, sx1 - sar]   # две подушки длинной части
-    for a, b in zip(cush_x, cush_x[1:]):
-        furn(g_, (a + 0.01, sby - sdp, b - 0.01, sby - sbk), kind="sofa_seat")
-    furn(g_, (sx0 + sbk, sby - sf["leg"], sx0 + sdp, sby - sdp - 0.01), kind="sofa_seat")  # уголок
+    if corner:                                                     # уголок (оттоманка) к окну
+        furn(g_, (sx0, sby - sf["leg"], sx0 + sbk, sby - sbk), kind="sofa_back")
+        furn(g_, (sx0 + sbk, sby - sf["leg"], sx0 + sdp, sby - sdp - 0.01), kind="sofa_seat")
+        cx_l, n_c = sx0 + sbk, 2
+    else:                                                          # прямой диван: подлокотники с двух сторон
+        furn(g_, (sx0, sby - sdp, sx0 + sar, sby - sbk), kind="sofa_arm")
+        cx_l, n_c = sx0 + sar, 3
+    w_c = (sx1 - sar - cx_l) / n_c
+    for i in range(n_c):                                           # подушки сиденья
+        a = cx_l + i * w_c
+        furn(g_, (a + 0.01, sby - sdp, a + w_c - 0.01, sby - sbk), kind="sofa_seat")
 
     tl, tw = g["tub"]
     furn(g_, (ax0, y1 - tl, ax0 + tw, y1), kind="tub")            # ванна у западной стены
