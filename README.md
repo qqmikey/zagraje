@@ -11,6 +11,7 @@
    ```bash
    make plan      # только план: out/plan.png, out/plan.svg
    make render    # план + 3D + рендеры: out/house.blend, out/renders/*.png
+   make views     # ракурсы для генерации: out/views/*.png (make views ONLY=04 — один)
    make open      # открыть папку out/ в Finder
    ```
 
@@ -24,7 +25,8 @@
 | `params.json` | все размеры, единственный источник правды |
 | `plan.py` | план этажей → `out/plan.svg`, `out/plan.png`, `out/layout.json` |
 | `blender/build_house.py` | 3D-модель из `out/layout.json` → `out/house.blend`, `out/renders/` |
-| `out/` | всё сгенерированное (в git не идёт) |
+| `codex/prompts.md` | промпты для генерации картинок по ракурсам `out/views/` |
+| `out/` | всё сгенерированное (в git не идёт): план, рендеры, `views/`, результаты `codex/` |
 | `refs/` | фото руины, кадастр, эскиз, снимки с дрона (в git не идут) |
 
 Требуется: Python 3, Blender 5.2 (`/Applications/Blender.app`, путь можно поменять: `make render BLENDER=...`).

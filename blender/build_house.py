@@ -22,6 +22,8 @@ L = json.loads((OUT / "layout.json").read_text(encoding="utf-8"))
 P, D = L["params"], L["derived"]
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 RENDER = "--render" in ARGS
+VIEWS = "--views" in ARGS          # ракурсы для генерации картинок (out/views/)
+ONLY = next((a.split("=", 1)[1] for a in ARGS if a.startswith("--only=")), None)   # --only=04 — один ракурс
 SAMPLES = 96
 
 W, OX, OY = P["wall"], P["outer_x"], P["outer_y"]
@@ -153,10 +155,11 @@ M = {
     "dressed": principled("Тёсаный камень", hexc("#d6d0c4"), 0.75),
     "tile": tile_material(),
     "plaster": principled("Штукатурка", hexc("#eeeae3"), 0.85),
-    "floor0": principled("Пол 1 этаж", hexc("#cbbfae"), 0.5),
-    "floor1": principled("Пол дерево", hexc("#a87a50"), 0.5),
+    "floor0": principled("Пол плитка под мрамор", hexc("#eceae6"), 0.18),
+    "floor1": principled("Пол 2 этаж плитка", hexc("#eceae6"), 0.18),
     "slab": principled("Перекрытие", hexc("#e3ded5"), 0.8),
-    "wood": principled("Дерево рам", hexc("#6a4830"), 0.55),
+    "wood": principled("Дерево", hexc("#6a4830"), 0.55),
+    "frame": principled("Рамы антрацит", hexc("#2a2b2d"), 0.4),
     "glass": principled("Стекло", hexc("#bcd3dc"), 0.03,
                         **{"Transmission Weight": 1.0, "IOR": 1.45}),
     "stair": principled("Лестница", hexc("#8a6442"), 0.5),
@@ -235,6 +238,21 @@ def subtract(obs, cutters_col):
         bake(ob)
 
 
+def plaster_inside(ob):
+    """Камень только на наружных гранях фасада; внутри (стены, откосы) — белая штукатурка."""
+    me = ob.data
+    me.materials.append(M["plaster"])
+    k = len(me.materials) - 1
+    for poly in me.polygons:
+        c = ob.matrix_world @ poly.center
+        n = poly.normal
+        outside = ((abs(c.x) < EPS and n.x < -0.5) or (abs(c.x - OX) < EPS and n.x > 0.5)
+                   or (abs(c.y) < EPS and n.y < -0.5) or (abs(c.y - OY) < EPS and n.y > 0.5)
+                   or n.z > 0.5)
+        if not outside:
+            poly.material_index = k
+
+
 def is_outer(o):
     return o["x0"] <= EPS or o["y0"] <= EPS or o["x1"] >= OX - EPS or o["y1"] >= OY - EPS
 
@@ -300,6 +318,8 @@ def build_floor(key, col, col_hi, z_top):
         box("вырез", o["x0"] - ex[0], o["y0"] - ex[1], z + za - (0.05 if za == 0 else 0),
             o["x1"] + ex[0], o["y1"] + ex[1], z + zb, M["cut"], cut_col)
     subtract(walls + parts, cut_col)
+    for w_ in walls:
+        plaster_inside(w_)
     for o in fl["openings"]:
         if is_outer(o):
             fill_opening(o, z, col_hi)    # окна и двери уходят вместе с верхом стен на разрезах
@@ -329,18 +349,18 @@ def fill_opening(o, z, col):
 
     fw = 0.07
     door = o["kind"] == "door"
-    B("рама", a0, a0 + fw, pane - 0.04, pane + 0.04, za, zb, M["wood"])
-    B("рама", a1 - fw, a1, pane - 0.04, pane + 0.04, za, zb, M["wood"])
-    B("рама", a0, a1, pane - 0.04, pane + 0.04, zb - fw, zb, M["wood"])
+    B("рама", a0, a0 + fw, pane - 0.04, pane + 0.04, za, zb, M["frame"])
+    B("рама", a1 - fw, a1, pane - 0.04, pane + 0.04, za, zb, M["frame"])
+    B("рама", a0, a1, pane - 0.04, pane + 0.04, zb - fw, zb, M["frame"])
     if not door:
-        B("рама", a0, a1, pane - 0.04, pane + 0.04, za, za + fw, M["wood"])
+        B("рама", a0, a1, pane - 0.04, pane + 0.04, za, za + fw, M["frame"])
     if door:
-        B("дверь", a0 + fw, a1 - fw, pane - 0.025, pane + 0.025, za, zb - fw, M["wood"])
+        B("дверь", a0 + fw, a1 - fw, pane - 0.025, pane + 0.025, za, zb - fw, M["frame"])
     else:
         B("стекло", a0 + fw, a1 - fw, pane - 0.01, pane + 0.01, za + fw, zb - fw, M["glass"])
         if a1 - a0 > 1.1:          # средний импост
             mid = (a0 + a1) / 2
-            B("импост", mid - 0.035, mid + 0.035, pane - 0.04, pane + 0.04, za, zb, M["wood"])
+            B("импост", mid - 0.035, mid + 0.035, pane - 0.04, pane + 0.04, za, zb, M["frame"])
     # обрамление из тёсаного камня (как на старом доме): косяки, перемычка, подоконник
     s = 0.2
     fo, fi = outer - sgn * 0.02, outer + sgn * 0.12
@@ -582,11 +602,61 @@ def setup_render():
     scene.render.image_settings.file_format = "PNG"
 
 
+C_ILIGHT = collection("Свет внутри")
 ALL = (C_GROUND, C_GROUND_HI, C_UPPER, C_UPPER_HI, C_ROOF, C_SITE)
 
 
+def interior_lights():
+    """Мягкий тёплый свет с потолка в комнатах — только для внутренних ракурсов."""
+    x, y = D["x"], D["y"]
+    spots = [  # (x, y, z потолка, мощность, размер)
+        ((x["mx0"] + x["mx1"]) / 2, (y["y0"] + y["y1"]) / 2 - 0.8, F2F - SLAB - 0.05, 220, 1.6),
+        ((x["mx0"] + x["mx1"]) / 2, y["y1"] - 1.3, F2F - SLAB - 0.05, 160, 1.2),
+        ((x["ax0"] + x["ax1"]) / 2 + 0.4, (y["y0"] + y["y1"]) / 2 - 0.4, F2F - SLAB - 0.05, 90, 0.8),
+        ((x["ax0"] + x["ax1"]) / 2, y["y1"] - 0.85, F2F - SLAB - 0.05, 60, 0.6),
+        (x["mx1"] - 1.6, y["y0"] + 1.3, EAVE - 0.1, 140, 1.0),
+        (x["mx1"] - 1.6, y["y1"] - 1.3, EAVE - 0.1, 140, 1.0),
+        ((x["ax0"] + x["iw1"]) / 2, y["y0"] + 1.7, EAVE - 0.1, 140, 1.0),
+        ((x["ax0"] + x["iw1"]) / 2, y["y1"] - 0.6, EAVE - 0.1, 70, 0.6),
+    ]
+    for i, (lx, ly, lz, w, size) in enumerate(spots):
+        ld = bpy.data.lights.new(f"свет {i}", "AREA")
+        ld.energy = w
+        ld.size = size
+        ld.color = (1.0, 0.88, 0.74)
+        ob = bpy.data.objects.new(f"свет {i}", ld)
+        ob.location = (lx, ly, lz)
+        C_ILIGHT.objects.link(ob)
+
+
+def codex_views():
+    """Ракурсы для генерации: 3 снаружи, 5 внутри. Координаты считаются от размеров дома."""
+    x, y = D["x"], D["y"]
+    cx, cy = OX / 2, OY / 2
+    mx0, mx1, y0, y1 = x["mx0"], x["mx1"], y["y0"], y["y1"]
+    ax0, ax1 = x["ax0"], x["ax1"]
+    e = 1.6                                  # высота глаз
+    ext = ALL
+    gf = (C_GROUND, C_GROUND_HI, C_UPPER, C_UPPER_HI, C_ROOF, C_SITE, C_ILIGHT)
+    return {
+        "01_ext_aerial_se": (camera("V01 сверху с юго-востока", (OX + 10, -12, 11), (cx, cy, 2.6), 35), ext),
+        "02_ext_road_sw": (camera("V02 с дорожки, юго-запад", (-5.5, -9.5, e), (cx + 0.5, cy, 3.0), 26), ext),
+        "03_ext_east": (camera("V03 сторона перголы, восток", (OX + 10, cy + 3.5, e), (cx, cy - 0.5, 3.0), 26), ext),
+        "04_int_living": (camera("V04 гостиная: камин, диван, ТВ", (mx1 - 0.35, y1 - 1.05, e - 0.1),
+                                 (mx0 + 1.0, y0 + 0.6, 0.9), 16), gf),
+        "05_int_kitchen": (camera("V05 кухня и барная стойка", (mx0 + 1.45, y0 + 1.25, e - 0.1),
+                                  (mx1 - 1.0, y1 - 0.2, 1.3), 18), gf),
+        "06_int_hall_stair": (camera("V06 холл и лестница", (ax1 - 0.3, y1 - 1.95, e),
+                                     (ax0 + 0.5, y0 + 0.4, 0.9), 16), gf),
+        "07_int_bedroom": (camera("V07 спальня 2", (mx1 - 3.0, y0 + 2.45, F2F + e),
+                                  (mx1 - 0.2, y0 + 0.4, F2F + 0.8), 16), gf),
+        "08_int_bath_tub": (camera("V08 санузел с ванной", (ax1 - 0.75, y1 - 1.55, e),
+                                   (ax0 + 0.3, y1 - 0.3, 0.8), 14), gf),
+    }
+
+
 def set_visible(*cols):
-    for c in ALL:
+    for c in ALL + (C_ILIGHT,):
         c.hide_render = c not in cols
         c.hide_viewport = c not in cols
 
@@ -603,6 +673,7 @@ def main():
     C_CUT.hide_render = True
     C_CUT.hide_viewport = True
     lights_and_world()
+    interior_lights()
     setup_render()
 
     cx, cy = OX / 2, OY / 2
@@ -624,6 +695,19 @@ def main():
             scene.render.filepath = str(out / f"{name}.png")
             bpy.ops.render.render(write_still=True)
             print("рендер:", scene.render.filepath)
+    if VIEWS:
+        vout = OUT / "views"
+        vout.mkdir(exist_ok=True)
+        scene.render.resolution_x, scene.render.resolution_y = 1536, 1024
+        for name, (cam, cols) in codex_views().items():
+            if ONLY and not name.startswith(ONLY):
+                continue
+            set_visible(*cols)
+            scene.cycles.samples = 256 if "_int_" in name else SAMPLES
+            scene.camera = cam
+            scene.render.filepath = str(vout / f"{name}.png")
+            bpy.ops.render.render(write_still=True)
+            print("вид:", scene.render.filepath)
     set_visible(*ALL)
     scene.camera = views["aerial"][0]
     bpy.ops.wm.save_as_mainfile(filepath=str(OUT / "house.blend"))

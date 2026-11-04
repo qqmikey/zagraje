@@ -90,7 +90,7 @@ _sf = _lv["sofa"]
 check(y0 + _sf["gap_window"] + _sf["leg"] <= _iy0 - 0.42 - 0.7 + 1e-6,
       "1 этаж: между спинкой дивана и стульями у стойки меньше 0.7 м прохода")
 check(_sf["x0"] >= _lv["fireplace"]["side"] + 0.1, "1 этаж: диван упирается в камин")
-check(_sf["gap_window"] + _sf["leg"] - _sf["depth"] >= _lv["tv_stand"][1] + 0.3,
+check(_sf["gap_window"] + _sf["leg"] - _sf["depth"] >= _lv["tv_stand"]["depth"] + 0.3,
       "1 этаж: диван слишком близко к ТВ-тумбе")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - SW_ * (wc_y0 - T - st_top)               # кладовая за маршем
@@ -413,10 +413,14 @@ def draw_ground(g_):
     g_.polygon([(mx0, y0), (mx0 + fa, y0), (mx0 + fa, y0 + fc), (mx0 + fc, y0 + fa), (mx0, y0 + fa)],
                "furnd", kind="fireplace")
     g_.text(mx0 + fa * 0.36, y0 + fa * 0.36 - 0.05, "камин", "small")
-    tw_, td_ = lv["tv_stand"]
-    furn(g_, (mx1 - tw_, y0, mx1, y0 + td_), kind="tv_stand")      # тумба под ТВ, правый нижний угол
-    furn(g_, (mx1 - tw_ / 2 - 0.6, y0 + 0.05, mx1 - tw_ / 2 + 0.6, y0 + 0.12), kind="tv")
-    g_.text(mx1 - tw_ / 2, y0 + td_ + 0.15, "ТВ", "small")
+    tv = lv["tv_stand"]                                            # тумба под ТВ: от окна почти до правой стены
+    tx0 = (mxc + 0.7) + tv["gap_window"]
+    tx1 = mx1 - tv["gap_right"]
+    td_ = tv["depth"]
+    furn(g_, (tx0, y0, tx1, y0 + td_), kind="tv_stand")
+    tcx, tvw = (tx0 + tx1) / 2, lv["tv_width"]
+    furn(g_, (tcx - tvw / 2, y0 + 0.05, tcx + tvw / 2, y0 + 0.12), kind="tv")
+    g_.text(tcx, y0 + td_ + 0.15, "ТВ", "small")
     sf = lv["sofa"]                                                # угловой диван, уголок со стороны камина
     sx0 = mx0 + sf["x0"]                                           # левый край дивана от левой стены гостиной
     sby = y0 + sf["gap_window"] + sf["leg"]                        # спинка длинной части
