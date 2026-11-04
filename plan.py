@@ -90,8 +90,8 @@ _sf = _lv["sofa"]
 check(y0 + _sf["gap_window"] + _sf["leg"] <= _iy0 - 0.42 - 0.7 + 1e-6,
       "1 этаж: между спинкой дивана и стульями у острова меньше 0.7 м прохода")
 check(_sf["x0"] >= _lv["fireplace"]["side"] + 0.1, "1 этаж: диван упирается в камин")
-check(_sf["gap_window"] + _sf["leg"] - _sf["depth"] >= _lv["tv_stand"][1] + _lv["ottoman"][1] + 0.1,
-      "1 этаж: оттоманка не помещается между диваном и ТВ-тумбой")
+check(_sf["gap_window"] + _sf["leg"] - _sf["depth"] >= _lv["tv_stand"][1] + 0.3,
+      "1 этаж: диван слишком близко к ТВ-тумбе")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - SW_ * (wc_y0 - T - st_top)               # кладовая за маршем
              - (ax1 - ax0) * (g["wc_d"] + T))
@@ -319,10 +319,12 @@ def dims(g_):
     g_.dim_v([0, OY], OX + 1.25)
 
 
-def furn(g_, *rects, cls="furn", kind="misc"):
+def furn(g_, *rects, cls="furn", kind="misc", front=None):
     for r in rects:
         g_.rect(*r, cls)
         g_.rec["furn"][-1]["kind"] = kind
+        if front:
+            g_.rec["furn"][-1]["front"] = front   # сторона фасада: S/N/E/W
 
 
 def bed(g_, x_head, yc, length=2.0, width=1.6, head="east"):
@@ -374,11 +376,22 @@ def draw_ground(g_):
     g_.win_h(mxc - 0.7, mxc + 0.7, 0, y0)                         # юг, гостиная
     g_.win_v(y0 + 1.1, y0 + 2.9, mx1, OX, kind="sliding")         # раздвижная к перголе
     g_.win_v(y1 - 1.6, y1 - 0.6, mx1, OX)                         # восток, кухня
-    g_.win_h(mx0 + 1.0, mx0 + 2.0, y1, OY)                        # север, кухня
     g_.win_h(ax0 + 1.6, ax0 + 2.2, y1, OY)                        # север, санузел
     # мебель
-    furn(g_, (mx0, y1 - 0.6, mx0 + 3.0, y1), kind="counter")      # кухня вдоль северной стены
-    furn(g_, (mx1 - 0.6, y1 - 0.6, mx1, y1), kind="fridge")
+    kc = P["kitchen"]                                              # кухня вдоль северной стены, без окна
+    kx1 = mx1 - kc["fridge_w"]
+    furn(g_, (mx0, y1 - 0.6, kx1, y1), kind="counter", front="S")  # нижние шкафы + столешница
+    furn(g_, (mx0, y1 - kc["wall_cab_depth"], kx1, y1), kind="wall_cab", cls="furnd", front="S")  # верхний ряд
+    n_d = max(1, round((kx1 - mx0) / kc["door_w"]))
+    for i in range(1, n_d):                                        # деление на дверки
+        xd = mx0 + i * (kx1 - mx0) / n_d
+        g_.line(xd, y1 - 0.6, xd, y1 - 0.45, "furn")
+    sk0 = mx0 + kc["sink_x"]
+    furn(g_, (sk0, y1 - 0.5, sk0 + 0.8, y1 - 0.1), kind="sink_k")  # мойка
+    ck0 = mx0 + kc["cooktop_x"]
+    furn(g_, (ck0, y1 - 0.52, ck0 + 0.6, y1 - 0.08), kind="cooktop")  # варочная панель
+    furn(g_, (kx1, y1 - 0.65, mx1, y1), kind="fridge", front="S")  # холодильник в край гарнитура
+    g_.text((kx1 + mx1) / 2, y1 - 0.38, "хол.", "small")
     lv = P["living"]
     il = lv["island"]                                              # остров: отдельно от стен, 4 места с юга
     ix0, ix1 = mx0 + il["gap_left"], mx0 + il["gap_left"] + il["len"]
@@ -404,7 +417,7 @@ def draw_ground(g_):
     sx0 = mx0 + sf["x0"]                                           # левый край дивана от левой стены гостиной
     sby = y0 + sf["gap_window"] + sf["leg"]                        # спинка длинной части
     sdp, sbk, sar = sf["depth"], sf["back"], sf["arm"]
-    sl = (mx1 - sx0) if sf.get("to_east_wall") else sf["long"]    # длинная часть до правой стены
+    sl = (mx1 - sf.get("east_gap", 0.0) - sx0) if sf.get("to_east_wall") else sf["long"]  # до правой стены
     sx1 = sx0 + sl
     furn(g_, (sx0, sby - sbk, sx1, sby), kind="sofa_back")         # спинка длинной части
     furn(g_, (sx0, sby - sf["leg"], sx0 + sbk, sby - sbk), kind="sofa_back")   # спинка уголка
@@ -413,10 +426,7 @@ def draw_ground(g_):
     for a, b in zip(cush_x, cush_x[1:]):
         furn(g_, (a + 0.01, sby - sdp, b - 0.01, sby - sbk), kind="sofa_seat")
     furn(g_, (sx0 + sbk, sby - sf["leg"], sx0 + sdp, sby - sdp - 0.01), kind="sofa_seat")  # уголок
-    ow, od = lv["ottoman"]                                         # оттоманка вплотную к дивану
-    ox1 = sx1 - sar - 0.05
-    oy1 = sby - sdp - lv["ottoman_gap"]
-    furn(g_, (ox1 - ow, oy1 - od, ox1, oy1), kind="ottoman")
+
     tl, tw = g["tub"]
     furn(g_, (ax0, y1 - tl, ax0 + tw, y1), kind="tub")            # ванна у западной стены
     g_.rect(ax0 + 0.08, y1 - tl + 0.08, ax0 + tw - 0.08, y1 - 0.08, "fline")   # чаша ванны

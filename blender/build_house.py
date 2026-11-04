@@ -163,6 +163,10 @@ M = {
     "furn": principled("Мебель", hexc("#dad3c7"), 0.7),
     "screen": principled("Экран", hexc("#1d1f22"), 0.15),
     "fabric": principled("Ткань", hexc("#9d9387"), 0.95),
+    "front": principled("Фасады кухни", hexc("#ece7dd"), 0.45),
+    "carcass": principled("Короб кухни", hexc("#3b3733"), 0.6),
+    "worktop": principled("Столешница дуб", hexc("#b48a5c"), 0.4),
+    "steel": principled("Сталь", hexc("#a7a9ab"), 0.3, **{"Metallic": 1.0}),
     "soot": principled("Топка", hexc("#141210"), 0.9),
     "bed": principled("Кровать", hexc("#efe9de"), 0.8),
     "ceramic": principled("Сантехника", hexc("#f4f4f2"), 0.2),
@@ -402,11 +406,12 @@ def build_stair():
 
 
 FURN_H = {  # (z0, z1, материал)
-    "bed": (0.0, 0.45, "bed"), "pillow": (0.45, 0.58, "bed"), "counter": (0.0, 0.9, "furn"),
-    "fridge": (0.0, 1.9, "furn"), "table": (0.0, 0.75, "wood"), "sofa": (0.0, 0.8, "furn"),
+    "bed": (0.0, 0.45, "bed"), "pillow": (0.45, 0.58, "bed"), "counter": (0.0, 0.9, "front"),
+    "fridge": (0.0, 2.0, "steel"), "table": (0.0, 0.75, "wood"), "sofa": (0.0, 0.8, "furn"),
     "coffee": (0.0, 0.4, "wood"), "wardrobe": (0.0, 2.1, "furn"), "toilet": (0.0, 0.42, "ceramic"),
     "sink": (0.75, 0.88, "ceramic"), "shower": (0.0, 0.05, "ceramic"), "misc": (0.0, 0.8, "furn"),
     "tub": (0.0, 0.55, "ceramic"), "cabinet": (0.0, 2.0, "furn"),
+    "wall_cab": (1.45, 2.2, "front"), "sink_k": (0.9, 0.905, "steel"), "cooktop": (0.9, 0.906, "screen"),
     "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.65, "wood"), "tv_stand": (0.0, 0.5, "furn"),
     "island_top": (0.87, 0.92, "wood"), "island_base": (0.0, 0.87, "furn"),
     "shoe_bench": (0.0, 0.45, "wood"), "coat_panel": (1.15, 1.95, "wood"), "hat_shelf": (1.85, 1.89, "wood"),
@@ -440,6 +445,27 @@ def build_poly_furniture(f, zf, z0, z1, mat, col):
     prism("топка", q, zf + 0.18, zf + 0.72, M["soot"], col)
 
 
+def kitchen_unit(kind, x0, y0, x1, y1, z0, z1, col, door_w=0.6):
+    """Кухонный модуль с фасадом на юг: тёмный короб, светлые дверки с зазорами, ручки;
+    у нижних шкафов — цоколь и дубовая столешница."""
+    base = kind == "counter"
+    zc0 = z0 + (0.1 if base else 0.0)
+    zc1 = z1 - (0.04 if base else 0.0)
+    if base:
+        box("цоколь", x0, y0 + 0.06, z0, x1, y1, zc0, M["carcass"], col)
+        box("столешница", x0, y0 - 0.02, zc1, x1, y1, z1, M["worktop"], col)
+    box("короб", x0, y0 + 0.02, zc0, x1, y1, zc1, M["carcass"], col)
+    n = max(1, round((x1 - x0) / door_w))
+    w = (x1 - x0) / n
+    g = 0.004
+    for i in range(n):
+        a, b = x0 + i * w + g, x0 + (i + 1) * w - g
+        box("дверка", a, y0, zc0 + g, b, y0 + 0.02, zc1 - g, M["front"], col)
+        hz = (zc1 - 0.09) if base else (zc0 + 0.05)              # ручка: сверху у нижних, снизу у верхних
+        hx = b - 0.06 if i % 2 == 0 else a + 0.04
+        box("ручка", hx, y0 - 0.02, hz, hx + 0.02, y0, hz + 0.14 if base else hz + 0.14, M["steel"], col)
+
+
 def build_furniture(key, col):
     fl = L["floors"][key]
     for f in fl["furn"]:
@@ -449,6 +475,9 @@ def build_furniture(key, col):
             build_poly_furniture(f, zf, z0, z1, mat, col)
             continue
         x0, y0, x1, y1 = f["r"]
+        if f.get("front") and f["kind"] in ("counter", "wall_cab"):
+            kitchen_unit(f["kind"], x0, y0, x1, y1, zf + z0, zf + z1, col)
+            continue
         if f["kind"] in ("table", "coffee"):      # столешница на ножках
             box(f["kind"], x0, y0, zf + z1 - 0.04, x1, y1, zf + z1, M[mat], col)
             for lx, ly in ((x0 + 0.05, y0 + 0.05), (x1 - 0.1, y0 + 0.05),
