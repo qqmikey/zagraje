@@ -63,10 +63,13 @@ check(ent0 >= b_x1 + 0.05, f"вход: дверь ({ent0:.2f}) налезает 
 check(y1 - corr1 - T >= 1.0, f"2 этаж: на санузел остаётся {y1 - corr1 - T:.2f} м глубины (< 1.0)")
 
 
-def R(name, x0_, y0_, x1_, y1_, note="", area=None):
+def R(name, x0_, y0_, x1_, y1_, note="", area=None, label_at=None):
     a = area if area is not None else (x1_ - x0_) * (y1_ - y0_)
-    return {"name": name, "x0": round(x0_, 3), "y0": round(y0_, 3),
-            "x1": round(x1_, 3), "y1": round(y1_, 3), "area": round(a, 2), "note": note}
+    r = {"name": name, "x0": round(x0_, 3), "y0": round(y0_, 3),
+         "x1": round(x1_, 3), "y1": round(y1_, 3), "area": round(a, 2), "note": note}
+    if label_at:
+        r["label_at"] = [round(label_at[0], 3), round(label_at[1], 3)]
+    return r
 
 
 stair_foot = SW_ * SW_ + N1 * TR * SW_ + N2 * TR * SW_
@@ -77,11 +80,15 @@ wc_y0 = y1 - g["wc_d"]                   # санузел: всю ширину �
 stor_y0 = cy1 + 3 * TR                   # под маршем, где высота уже > ~1.5 м
 check(wc_y0 - T >= st_top, "1 этаж: санузел налезает на марш лестницы")
 check(g["tub"][0] <= g["wc_d"] + 1e-6, "1 этаж: ванна длиннее глубины санузла")
+_lv = P["living"]
+check(g["living_opening_y"][1] <= _lv["bar_y0"] - 0.5 + 1e-6, "1 этаж: проход из холла упирается в барные стулья")
+check(y1 - 0.6 - (_lv["bar_y0"] + _lv["bar_depth"]) >= 0.9, "1 этаж: между стойкой и кухней меньше 0.9 м")
 hall_area = ((ax1 - ax0) * (y1 - y0) - stair_foot
              - SW_ * (wc_y0 - T - st_top)               # кладовая за маршем
              - (ax1 - ax0) * (g["wc_d"] + T))
 GROUND = [
-    R("Кухня-гостиная-столовая", mx0, y0, mx1, y1),
+    R("Кухня-гостиная", mx0, y0, mx1, y1,
+      label_at=((mx0 + P["living"]["bar_len"] + mx1) / 2, P["living"]["bar_y0"] + 0.75)),
     R("Прихожая-холл", cx1, cy1, ax1, wc_y0, area=hall_area),
     R("Санузел с ванной", ax0, wc_y0, ax1, y1),
     R("Кладовая", cx0, stor_y0, cx1, wc_y0 - T, "под лестницей"),
@@ -274,7 +281,7 @@ def stair(g_, upper):
 
 
 def label(g_, r):
-    cx, cy = (r["x0"] + r["x1"]) / 2, (r["y0"] + r["y1"]) / 2
+    cx, cy = r.get("label_at") or ((r["x0"] + r["x1"]) / 2, (r["y0"] + r["y1"]) / 2)
     w, h = r["x1"] - r["x0"], r["y1"] - r["y0"]
     if w < 2.3 or h < 1.3:
         lines = [r["name"].strip(), f"{r['area']:.1f} м²"]
@@ -312,11 +319,13 @@ def bed(g_, x_head, yc, length=2.0, width=1.6, head="east"):
 
 
 def bath_line(g_, x0_, x1_, yb0, yb1):
-    """Санузел в линию вдоль северной стены: унитаз, раковина, душ в восточном торце."""
+    """Санузел в линию вдоль северной стены: унитаз в левом углу (спиной к западной стене,
+    лицом на восток), раковина за дверью, душ в восточном торце."""
     furn(g_, (x1_ - 0.9, yb1 - 0.9, x1_, yb1), kind="shower")      # душ 0.9x0.9
     g_.line(x1_ - 0.9, yb1 - 0.9, x1_, yb1, "furn")
-    furn(g_, (x0_ + 0.15, yb1 - 0.65, x0_ + 0.55, yb1 - 0.05), kind="toilet")
-    furn(g_, (x0_ + 0.85, yb1 - 0.45, x0_ + 1.45, yb1 - 0.02), kind="sink")
+    furn(g_, (x0_, yb1 - 0.55, x0_ + 0.65, yb1 - 0.15), kind="toilet")
+    sx = cx1 + 1.25                                                # восточнее двери
+    furn(g_, (sx, yb1 - 0.45, sx + 0.6, yb1 - 0.02), kind="sink")
 
 
 # ---- этажи -------------------------------------------------------------------
@@ -348,10 +357,25 @@ def draw_ground(g_):
     # мебель
     furn(g_, (mx0, y1 - 0.6, mx0 + 3.0, y1), kind="counter")      # кухня вдоль северной стены
     furn(g_, (mx1 - 0.6, y1 - 0.6, mx1, y1), kind="fridge")
-    furn(g_, (mx0 + 1.3, y1 - 2.3, mx0 + 3.1, y1 - 1.4), kind="table")
-    furn(g_, (mx0 + 0.6, y0 + 0.1, mx0 + 3.0, y0 + 0.95), kind="sofa")
-    furn(g_, (mx0 + 1.3, y0 + 1.3, mx0 + 2.3, y0 + 1.9), kind="coffee")
-    furn(g_, (ax1 - 0.45, y0 + 1.0, ax1, lo0 - 0.15), kind="wardrobe")   # гардероб в холле
+    lv = P["living"]
+    bl, bd, by0 = lv["bar_len"], lv["bar_depth"], lv["bar_y0"]
+    furn(g_, (mx0, by0, mx0 + bl, by0 + bd), kind="bar")           # барная стойка от левой стены
+    n_st = max(1, int(bl // 0.5))
+    for i in range(n_st):                                          # стулья со стороны гостиной
+        sx = mx0 + 0.2 + i * (bl - 0.4) / max(1, n_st - 1) - 0.18 if n_st > 1 else mx0 + bl / 2 - 0.18
+        furn(g_, (sx, by0 - 0.45, sx + 0.36, by0 - 0.09), kind="stool")
+    fw_, fd_ = lv["fireplace"]
+    furn(g_, (mx0, y0, mx0 + fw_, y0 + fd_), kind="fireplace", cls="furnd")   # место под камин
+    g_.text(mx0 + fw_ / 2, y0 + fd_ / 2 - 0.05, "камин", "small")
+    tw_, td_ = lv["tv_stand"]
+    furn(g_, (mx1 - tw_, y0, mx1, y0 + td_), kind="tv_stand")      # тумба под ТВ, правый нижний угол
+    furn(g_, (mx1 - tw_ / 2 - 0.6, y0 + 0.05, mx1 - tw_ / 2 + 0.6, y0 + 0.12), kind="tv")
+    g_.text(mx1 - tw_ / 2, y0 + td_ + 0.15, "ТВ", "small")
+    sw_, sd_ = lv["sofa"]
+    sx0 = mx1 - lv["sofa_gap_east"] - sw_
+    furn(g_, (sx0, lv["sofa_y0"], sx0 + sw_, lv["sofa_y0"] + sd_), kind="sofa")  # диван смотрит на ТВ
+    furn(g_, (sx0 + 0.5, y0 + 1.05, sx0 + sw_ - 0.5, y0 + 1.6), kind="coffee")
+    furn(g_, (ax1 - 0.45, y0 + 1.0, ax1, lo0 - 0.15), kind="wardrobe")   # шкаф для верхней одежды в холле
     tl, tw = g["tub"]
     furn(g_, (ax0, y1 - tl, ax0 + tw, y1), kind="tub")            # ванна у западной стены
     g_.rect(ax0 + 0.08, y1 - tl + 0.08, ax0 + tw - 0.08, y1 - 0.08, "fline")   # чаша ванны

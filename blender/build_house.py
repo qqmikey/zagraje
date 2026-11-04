@@ -161,6 +161,7 @@ M = {
                         **{"Transmission Weight": 1.0, "IOR": 1.45}),
     "stair": principled("Лестница", hexc("#8a6442"), 0.5),
     "furn": principled("Мебель", hexc("#dad3c7"), 0.7),
+    "screen": principled("Экран", hexc("#1d1f22"), 0.15),
     "bed": principled("Кровать", hexc("#efe9de"), 0.8),
     "ceramic": principled("Сантехника", hexc("#f4f4f2"), 0.2),
     "grass": principled("Газон", hexc("#6f8a4c"), 0.95),
@@ -404,6 +405,8 @@ FURN_H = {  # (z0, z1, материал)
     "coffee": (0.0, 0.4, "wood"), "wardrobe": (0.0, 2.1, "furn"), "toilet": (0.0, 0.42, "ceramic"),
     "sink": (0.75, 0.88, "ceramic"), "shower": (0.0, 0.05, "ceramic"), "misc": (0.0, 0.8, "furn"),
     "tub": (0.0, 0.55, "ceramic"), "cabinet": (0.0, 2.0, "furn"),
+    "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.75, "wood"), "tv_stand": (0.0, 0.5, "furn"),
+    "tv": (0.6, 1.3, "screen"), "fireplace": (0.0, 1.0, "dressed"),
 }
 
 
