@@ -2,6 +2,7 @@
 """Отправить один ракурс в Codex на генерацию картинки.
 
     python3 codex/run.py 04_int_living        # следующая версия: out/codex/04_int_living_v1.png, v2, ...
+    python3 codex/run.py 06_int_hall_stair refs/hall_concept.png   # + доп. референсы для этого ракурса
 
 Собирает промпт из codex/prompts.md (общий блок + стиль интерьера + блок ракурса),
 прикладывает out/views/<ракурс>.png и все фото из refs/style/, запускает `codex exec`.
@@ -60,10 +61,11 @@ def main():
     (OUT / f"{view}_v{n}.prompt.txt").write_text(prompt, encoding="utf-8")
     cmd = ["codex", "exec", "-C", str(ROOT), "-s", "workspace-write",
            "-o", str(OUT / f"{view}_v{n}.log.txt"), "-i", str(img)]
-    for p in style_imgs:
+    extra_imgs = [ROOT / a for a in sys.argv[2:]]                  # доп. референсы ракурса — сразу после черновика
+    for p in extra_imgs + style_imgs:
         cmd += ["-i", str(p)]
     cmd += ["--", prompt]
-    print("ракурс:", img.relative_to(ROOT), "| стилевых фото:", len(style_imgs), "| цель:", target.relative_to(ROOT))
+    print("ракурс:", img.relative_to(ROOT), "| доп. реф:", len(extra_imgs), "| стилевых фото:", len(style_imgs), "| цель:", target.relative_to(ROOT))
     r = subprocess.run(cmd)
     print("готово" if target.exists() else f"картинка не появилась в {target.relative_to(ROOT)}, код {r.returncode}")
 

@@ -442,7 +442,7 @@ FURN_H = {  # (z0, z1, материал)
     "bar": (0.0, 1.05, "wood"), "stool": (0.0, 0.65, "wood"), "tv_stand": (0.0, 0.5, "furn"),
     "island_top": (0.87, 0.92, "wood"), "island_base": (0.0, 0.87, "furn"),
     "nightstand": (0.0, 0.5, "wood"),
-    "shoe_bench": (0.0, 0.45, "wood"), "coat_panel": (1.15, 1.95, "wood"), "hat_shelf": (1.85, 1.89, "wood"),
+    "shoe_bench": (0.0, 0.45, "wood"), "coat_panel": (0.45, 2.3, "wood"), "hat_shelf": (2.3, 2.35, "wood"),
     "tv": (0.6, 1.3, "screen"), "fireplace": (0.0, 1.05, "dressed"),
     "sofa_seat": (0.0, 0.44, "fabric"), "sofa_back": (0.0, 0.82, "fabric"), "sofa_arm": (0.0, 0.62, "fabric"),
     "ottoman": (0.0, 0.42, "fabric"),

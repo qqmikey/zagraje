@@ -157,9 +157,9 @@ This view: bedroom 1 (above the entrance hall), seen from the door.
 
 This view: bedroom 2 (front corner of the house), seen from the door.
 - Feature colour: warm terracotta / clay, with cream, rattan and black accents.
-- The bed stands with its headboard against the far wall, under the narrower window: keep that window
-  above the headboard (a low panel headboard below the sill), nightstands on both sides.
-- A second, wider window with a black frame in the wall on the right; outside: olive trees, cypresses,
+- The bed stands with its headboard against the far wall — a solid feature wall with no window: tall
+  fluted headboard panel, framed art above it, nightstands and sconces on both sides.
+- The only window, with a black frame, is in the wall on the right; outside: olive trees, cypresses,
   rocky mountains (no sea).
 - Behind the camera / at the edge of the frame: a built-in wardrobe niche — handleless cashmere-beige or
   white fronts flush with the wall.
@@ -174,10 +174,39 @@ This view: bedroom 2 (front corner of the house), seen from the door.
 
 This view: bedroom 3 (back corner of the house), seen from the door.
 - Feature colour: dusty denim blue, with natural linen, light oak and brass accents.
-- The bed (a narrower 140 cm double) stands with its headboard against the wall on the right, under the
-  window there: keep that window above the headboard (a low panel headboard below the sill), nightstands
+- The bed (a narrower 140 cm double) stands with its headboard against the wall on the right — a solid
+  feature wall with no window: tall fluted headboard panel, framed art above it, nightstands and sconces
   on both sides.
-- A second window with a black frame in the wall on the left; outside: garden greenery, olive trees and
-  mountains (no sea).
+- The only window, with a black frame, is in the wall on the left; outside: garden greenery, olive trees
+  and mountains (no sea).
 - The built-in wardrobe niche is behind the camera — do not add other wardrobes.
+```
+
+---
+
+## 6. Холл и лестница — `06_int_hall_stair`
+
+Файлы: `out/views/06_int_hall_stair.png` + `refs/hall_concept.png` (кусок одобренной гостиной v3) + `refs/style/`.
+Запуск: `python3 codex/run.py 06_int_hall_stair refs/hall_concept.png`
+
+```
+[общий блок]
+[стиль интерьера]
+
+The SECOND attached image is the approved hall concept (a crop from the approved living-room render of
+this same house): keep exactly this concept and make the hall a beautiful, high-quality space.
+
+This view: the entrance hall seen from the passage to the living room.
+- Left: the front entrance door — a tall anthracite flush door with black hardware in a deep white reveal.
+- Centre: the L-shaped staircase in smooth light-grey polished concrete / microcement, warm LED strip under
+  the nosing of every step, slim black metal handrail on thin black posts. Under the upper flight, where the
+  draft shows an opening on the right, a flush handleless door to the under-stair storage, painted the wall
+  colour or in oak slats so it nearly disappears.
+- Along the stair side: the entrance unit from the concept — an anthracite low cabinet/bench with an oak
+  top, and above it a full-height vertical oak slatted panel with a large round mirror on it, a row of
+  black hooks and a small black wall light on top, a slim oak shelf crowning the panel.
+- A small white plastered niche in the wall by the stair, as in the concept, with one ceramic object.
+- Floor: white marble-look porcelain tiles; warm, soft evening-like accent lighting plus daylight.
+- You may refine details (shadow gaps, lighting, one plant, one rug) to make it stylish — but keep the
+  layout, the stair, the door and the entrance unit where they are in the draft.
 ```
