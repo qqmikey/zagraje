@@ -176,6 +176,16 @@ M = {
     "bed": principled("Кровать", hexc("#efe9de"), 0.8),
     "ceramic": principled("Сантехника", hexc("#f4f4f2"), 0.2),
     "grass": principled("Газон", hexc("#6f8a4c"), 0.95),
+    "paving": principled("Мощение камень", hexc("#d9d3c7"), 0.8),
+    "deck": principled("Терраса ДПК", hexc("#8a6a4f"), 0.7),
+    "pergola": principled("Пергола дерево", hexc("#a37a52"), 0.6),
+    "pool_tile": principled("Плитка бассейна", hexc("#7fb6c9"), 0.3),
+    "water": principled("Вода", hexc("#5fb3d0"), 0.02, **{"Transmission Weight": 0.85, "IOR": 1.33}),
+    "hedge": principled("Изгородь", hexc("#46613a"), 0.9),
+    "foliage": principled("Крона", hexc("#6b7d4a"), 0.9),
+    "cypress": principled("Кипарис", hexc("#36502f"), 0.9),
+    "trunk": principled("Ствол", hexc("#6b5a48"), 0.9),
+    "road": principled("Дорожка бетон", hexc("#c9c5bd"), 0.85),
     "cut": principled("Вырез", (1, 0, 0), 0.5),
 }
 
@@ -574,9 +584,133 @@ def build_roof():
 
 
 # ---- участок, свет, камеры -------------------------------------------------------
+def cylinder(name, x, y, z0, z1, r, mat, col, segs=16, r_top=None):
+    """Цилиндр или конус (r_top=0) по оси Z."""
+    me = bpy.data.meshes.new(name)
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, segments=segs, radius1=r,
+                          radius2=r if r_top is None else r_top, depth=z1 - z0)
+    bmesh.ops.translate(bm, verts=bm.verts, vec=(x, y, (z0 + z1) / 2))
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    return link(bpy.data.objects.new(name, me), col)
+
+
+def sphere(name, x, y, z, r, mat, col, sz=1.0):
+    me = bpy.data.meshes.new(name)
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=10, radius=r)
+    for v in bm.verts:
+        v.co.z *= sz
+    bmesh.ops.translate(bm, verts=bm.verts, vec=(x, y, z))
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    return link(bpy.data.objects.new(name, me), col)
+
+
+def olive(x, y, h=3.2, r=1.4):
+    cylinder("олива ствол", x, y, -0.06, h * 0.55, 0.12, M["trunk"], C_SITE, 8)
+    sphere("олива крона", x, y, h * 0.7, r, M["foliage"], C_SITE, 0.65)
+
+
+def cypress(x, y, h=7.0):
+    cylinder("кипарис", x, y, -0.06, h, 0.55, M["cypress"], C_SITE, 12, r_top=0.08)
+
+
+def railing(x0, x1, y, z0, h, col, gaps=()):
+    """Чёрная решётка: две полосы + вертикальные прутья с шагом 12 см, с проёмами под ворота."""
+    def in_gap(x):
+        return any(a <= x <= b for a, b in gaps)
+    segs, cur = [], x0
+    for a, b in sorted(gaps):
+        if a > cur:
+            segs.append((cur, a))
+        cur = max(cur, b)
+    if cur < x1:
+        segs.append((cur, x1))
+    for a, b in segs:
+        box("решётка полоса", a, y - 0.02, z0 + 0.05, b, y + 0.02, z0 + 0.09, M["frame"], col)
+        box("решётка полоса", a, y - 0.02, z0 + h - 0.04, b, y + 0.02, z0 + h, M["frame"], col)
+        n = max(1, int((b - a) / 0.12))
+        for i in range(n + 1):
+            xb = a + i * (b - a) / n
+            box("пруток", xb - 0.01, y - 0.01, z0, xb + 0.01, y + 0.01, z0 + h, M["frame"], col)
+    for a, b in gaps:                                    # столбы ворот
+        for xp in (a, b):
+            box("столб ворот", xp - 0.15, y - 0.15, -0.06, xp + 0.15, y + 0.15, z0 + h + 0.2, M["stone"], col)
+
+
 def build_site():
-    box("Земля", -15, -15, -0.12, OX + 15, OY + 15, -0.06, M["grass"], C_SITE)
-    box("Отмостка", -0.6, -0.6, -0.07, OX + 0.6, OY + 0.6, -0.04, M["dressed"], C_SITE)
+    s = P["site"]
+    X0, X1 = -s["gap_west"], OX + s["gap_east"]
+    Y0, Y1 = -s["gap_south"], OY + s["gap_north"]
+    c = C_SITE
+    # земля с вырезом под бассейн
+    pl = s["pool"]
+    px0, px1 = OX + pl["x0_from_house"], OX + pl["x0_from_house"] + pl["len"]
+    py1 = pl["y1"]
+    py0 = py1 - pl["w"]
+    ground = box("Земля", X0 - 25, Y0 - 25, -0.4, X1 + 25, Y1 + 25, -0.06, M["grass"], c)
+    cut = collection("_вырез бассейна", C_CUT)
+    box("вырез", px0, py0, -2.0, px1, py1, 0.5, M["cut"], cut)
+    subtract([ground], cut)
+    box("Отмостка", -0.6, -0.6, -0.07, OX + 0.6, OY + 0.6, -0.04, M["paving"], c)
+    # бассейн: стенки, дно, вода, бортик и мощение вокруг
+    dp = pl["depth"]
+    box("дно бассейна", px0, py0, -dp - 0.1, px1, py1, -dp, M["pool_tile"], c)
+    for a in ((px0 - 0.1, py0, px0, py1), (px1, py0, px1 + 0.1, py1),
+              (px0 - 0.1, py0 - 0.1, px1 + 0.1, py0), (px0 - 0.1, py1, px1 + 0.1, py1 + 0.1)):
+        box("стенка бассейна", a[0], a[1], -dp, a[2], a[3], -0.06, M["pool_tile"], c)
+    box("вода", px0, py0, -dp, px1, py1, -0.16, M["water"], c)
+    for a in ((px0 - 1.2, py1, px1 + 0.4, py1 + 1.0), (px0 - 1.2, py0 - 0.8, px1 + 0.4, py0),
+              (px0 - 1.2, py0, px0, py1), (px1, py0, px1 + 0.4, py1)):
+        box("мощение у бассейна", a[0], a[1], -0.07, a[2], a[3], -0.02, M["paving"], c)
+    # пергола с террасой перед раздвижной дверью
+    pg = s["pergola"]
+    gx0, gx1 = OX, OX + pg["depth"]
+    gy0, gy1 = pg["y0"], pg["y0"] + pg["len"]
+    box("терраса", gx0, gy0 - 0.3, -0.07, gx1 + 0.3, gy1 + 0.3, 0.1, M["deck"], c)
+    for xp in (gx1 - 0.15,):
+        for yp in (gy0, gy1 - 0.15):
+            box("столб перголы", xp, yp, 0.1, xp + 0.15, yp + 0.15, pg["h"], M["pergola"], c)
+    for yp in (gy0, gy1 - 0.15):                         # балки от стены к столбам
+        box("балка перголы", gx0, yp, pg["h"] - 0.22, gx1 + 0.1, yp + 0.15, pg["h"], M["pergola"], c)
+    box("ригель перголы", gx1 - 0.15, gy0, pg["h"] - 0.22, gx1, gy1, pg["h"], M["pergola"], c)
+    n = int((gy1 - gy0) / 0.35)
+    for i in range(n + 1):                               # ламели сверху
+        yl = gy0 + i * (gy1 - gy0) / n
+        box("ламель", gx0, yl - 0.03, pg["h"], gx1 + 0.2, yl + 0.03, pg["h"] + 0.12, M["pergola"], c)
+    # парковка и дорожка ко входу
+    pk = s["parking"]
+    box("парковка", pk["x0"], Y0, -0.07, pk["x1"], pk["y1"], -0.02, M["paving"], c)
+    ep = s["entry_path"]
+    box("дорожка ко входу", ep["x0"], Y0, -0.07, ep["x1"], -0.6, -0.02, M["paving"], c)
+    box("дорожка к перголе", ep["x1"], -1.4, -0.07, px0 - 1.2, -0.6, -0.02, M["paving"], c)
+    # внешняя дорожка вдоль участка
+    box("улица", X0 - 25, Y0 - 1.8, -0.09, X1 + 25, Y0 - 0.25, -0.03, M["road"], c)
+    # ограда: по улице — цоколь + решётка с воротами; остальное — каменная стенка + изгородь
+    f = s["fence"]
+    gaps = [tuple(f["car_gate"]), tuple(f["gate"])]
+    segs, cur = [], X0
+    for a, b in sorted(gaps):
+        segs.append((cur, a)); cur = b
+    segs.append((cur, X1))
+    for a, b in segs:
+        box("цоколь ограды", a, Y0 - 0.2, -0.06, b, Y0 + 0.1, f["plinth_h"], M["stone"], c)
+    railing(X0, X1, Y0 - 0.05, f["plinth_h"], f["rail_h"], c, gaps=gaps)
+    for a in ((X0 - 0.3, Y0, X0, Y1), (X1, Y0, X1 + 0.3, Y1), (X0 - 0.3, Y1, X1 + 0.3, Y1 + 0.3)):
+        box("каменная стенка", a[0], a[1], -0.06, a[2], a[3], 1.0, M["stone"], c)
+    box("изгородь восток", X1 - 0.9, Y0 + 0.4, -0.06, X1 - 0.05, Y1 - 0.2, 1.9, M["hedge"], c)
+    box("изгородь север", X0 + 0.2, Y1 - 0.8, -0.06, X1 - 0.9, Y1 - 0.05, 1.6, M["hedge"], c)
+    # деревья
+    cypress(X1 - 0.6, Y1 - 0.6, 7.5)
+    cypress(X1 - 1.8, Y1 - 0.5, 6.5)
+    cypress(X0 + 0.5, Y1 - 0.5, 6.8)
+    olive(px1 - 0.5, py0 - 2.0 if py0 - 2.0 > Y0 + 1.2 else py1 + 2.2, 3.4, 1.5)
+    olive(X0 + 0.9, (Y0 + 0) / 2 - 1.0, 3.0, 1.2)
+    olive(gx1 + 1.6, gy1 + 1.4, 3.2, 1.4)
 
 
 def lights_and_world():
@@ -661,8 +795,13 @@ def codex_views():
     e = 1.6                                  # высота глаз
     ext = ALL
     gf = (C_GROUND, C_GROUND_HI, C_UPPER, C_UPPER_HI, C_ROOF, C_SITE, C_ILIGHT)
+    s = P["site"]
+    top = camera("V00 участок сверху", (cx + 3.0, cy - 2.5, 40), (cx + 3.0, cy - 2.5, 0), 50)
+    top.data.type = "ORTHO"
+    top.data.ortho_scale = max(OX + s["gap_west"] + s["gap_east"], OY + s["gap_south"] + s["gap_north"]) * 1.25
     return {
-        "01_ext_aerial_se": (camera("V01 сверху с юго-востока", (OX + 10, -12, 11), (cx, cy, 2.6), 35), ext),
+        "00_site_top": (top, ext),
+        "01_ext_aerial_se": (camera("V01 сверху с юго-востока", (OX + 15, -19, 15), (cx + 2.0, cy - 2.5, 1.0), 32), ext),
         "02_ext_road_sw": (camera("V02 с дорожки, юго-запад", (-5.5, -9.5, e), (cx + 0.5, cy, 3.0), 26), ext),
         "03_ext_east": (camera("V03 сторона перголы, восток", (OX + 10, cy + 3.5, e), (cx, cy - 0.5, 3.0), 26), ext),
         "04_int_living": (camera("V04 гостиная: камин, диван, ТВ", (mx1 - 0.35, y1 - 1.05, e - 0.1),
