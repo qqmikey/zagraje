@@ -619,6 +619,10 @@ def cypress(x, y, h=7.0):
     cylinder("кипарис", x, y, -0.06, h, 0.55, M["cypress"], C_SITE, 12, r_top=0.08)
 
 
+def thuja(x, y, h=2.4, r=0.38):
+    cylinder("туя", x, y, -0.06, h, r, M["cypress"], C_SITE, 12, r_top=r * 0.3)
+
+
 def railing(x0, x1, y, z0, h, col, gaps=()):
     """Чёрная решётка: две полосы + вертикальные прутья с шагом 12 см, с проёмами под ворота."""
     def in_gap(x):
@@ -640,6 +644,41 @@ def railing(x0, x1, y, z0, h, col, gaps=()):
     for a, b in gaps:                                    # столбы ворот
         for xp in (a, b):
             box("столб ворот", xp - 0.15, y - 0.15, -0.06, xp + 0.15, y + 0.15, z0 + h + 0.2, M["stone"], col)
+
+
+def street_z(x):
+    """Высота улицы над двором: rise до x_high, линейно до 0 к x_level, дальше 0."""
+    st = P["site"]["street"]
+    a, b, r = st["x_high"], st["x_level"], st["rise"]
+    if x <= a:
+        return r
+    if x >= b:
+        return 0.0
+    return r * (b - x) / (b - a)
+
+
+def slope_slab(name, xs, y0, y1, ztop, zbot, mat, col):
+    """Тело вдоль X: верх по профилю ztop(x) в точках xs, низ на zbot."""
+    me = bpy.data.meshes.new(name)
+    bm = bmesh.new()
+    top = [(bm.verts.new((x, y0, ztop(x))), bm.verts.new((x, y1, ztop(x)))) for x in xs]
+    bot = [(bm.verts.new((x, y0, zbot)), bm.verts.new((x, y1, zbot))) for x in xs]
+    for i in range(len(xs) - 1):
+        (a0, a1), (b0, b1) = top[i], top[i + 1]
+        (c0, c1), (d0, d1) = bot[i], bot[i + 1]
+        bm.faces.new((a0, b0, b1, a1))      # верх
+        bm.faces.new((c1, d1, d0, c0))      # низ
+        bm.faces.new((a0, c0, d0, b0))      # юг
+        bm.faces.new((a1, b1, d1, c1))      # север
+    for (t0, t1), (u0, u1), flip in ((top[0], bot[0], True), (top[-1], bot[-1], False)):
+        f = bm.faces.new((t0, t1, u1, u0))
+        if flip:
+            f.normal_flip()
+    bm.normal_update()
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    return link(bpy.data.objects.new(name, me), col)
 
 
 def build_site():
@@ -684,24 +723,46 @@ def build_site():
         box("ламель", gx0, yl - 0.03, pg["h"], gx1 + 0.2, yl + 0.03, pg["h"] + 0.12, M["pergola"], c)
     # парковка и дорожка ко входу
     pk = s["parking"]
-    box("парковка", pk["x0"], Y0, -0.07, pk["x1"], pk["y1"], -0.02, M["paving"], c)
-    ep = s["entry_path"]
-    box("дорожка ко входу", ep["x0"], Y0, -0.07, ep["x1"], -0.6, -0.02, M["paving"], c)
-    box("дорожка к перголе", ep["x1"], -1.4, -0.07, px0 - 1.2, -0.6, -0.02, M["paving"], c)
-    # внешняя дорожка вдоль участка
-    box("улица", X0 - 25, Y0 - 1.8, -0.09, X1 + 25, Y0 - 0.25, -0.03, M["road"], c)
-    # ограда: по улице — цоколь + решётка с воротами; остальное — каменная стенка + изгородь
+    dw = s["driveway"]
     f = s["fence"]
+    g0, g1 = f["car_gate"]
+    box("парковка", pk["x0"], Y0 + 0.1, -0.07, pk["x1"], pk["y1"], -0.02, M["paving"], c)
+    box("проезд вдоль фасада", pk["x1"], dw["y0"], -0.07, max(g1, px0 - 1.2), dw["y1"], -0.02, M["paving"], c)
+    box("въезд от ворот", g0, Y0 + 0.1, -0.07, g1, dw["y0"], -0.02, M["paving"], c)
+    ep = s["entry_path"]
+    box("дорожка от калитки", ep["x0"], Y0 + 0.1, -0.07, ep["x1"], dw["y0"], -0.02, M["paving"], c)
+    # улица с уклоном: у парковки выше двора, у ворот — вровень; за ней земля по тому же профилю
+    st = s["street"]
+    xs = sorted({X0 - 25, st["x_high"], st["x_level"], X1 + 25})
+    slope_slab("улица", xs, Y0 - 1.8, Y0 - 0.2, lambda x: street_z(x) - 0.03, -0.4, M["road"], c)
+    slope_slab("земля за улицей", xs, Y0 - 25, Y0 - 1.8, lambda x: street_z(x) - 0.065, -0.4, M["grass"], c)
+    # ограда: по улице — цоколь + решётка с воротами; остальное — каменная стенка + изгородь
     gaps = [tuple(f["car_gate"]), tuple(f["gate"])]
     segs, cur = [], X0
     for a, b in sorted(gaps):
         segs.append((cur, a)); cur = b
     segs.append((cur, X1))
+    ph = f["plinth_h"]
+    # подпорная стена (до уровня улицы) + цоколь над улицей; верх ступенями по ~1.2 м
+    step = 1.2
     for a, b in segs:
-        box("цоколь ограды", a, Y0 - 0.2, -0.06, b, Y0 + 0.1, f["plinth_h"], M["stone"], c)
-    railing(X0, X1, Y0 - 0.05, f["plinth_h"], f["rail_h"], c, gaps=gaps)
-    for a in ((X0 - 0.3, Y0, X0, Y1), (X1, Y0, X1 + 0.3, Y1), (X0 - 0.3, Y1, X1 + 0.3, Y1 + 0.3)):
+        n = max(1, math.ceil((b - a) / step - 1e-6))
+        for i in range(n):
+            u0, u1 = a + (b - a) * i / n, a + (b - a) * (i + 1) / n
+            zt = max(street_z(u0), street_z(u1)) + ph
+            name = "подпорная стена" if zt > ph + 0.05 else "цоколь ограды"
+            box(name, u0, Y0 - 0.2, -0.06, u1, Y0 + 0.1, zt, M["stone"], c)
+            railing(u0, u1, Y0 - 0.05, zt, f["rail_h"], c)
+    for a, b in gaps:                                    # столбы ворот и калитки
+        for xp in (a, b):
+            box("столб ворот", xp - 0.15, Y0 - 0.15, -0.06, xp + 0.15, Y0 + 0.15,
+                street_z(xp) + ph + f["rail_h"] + 0.2, M["stone"], c)
+    for a in ((X1, Y0, X1 + 0.3, Y1), (X0 - 0.3, Y1, X1 + 0.3, Y1 + 0.3)):
         box("каменная стенка", a[0], a[1], -0.06, a[2], a[3], 1.0, M["stone"], c)
+    # запад: снаружи грунт на уровне верхней улицы — стенка подпорная, над грунтом ещё 0.5 м
+    rw = street_z(X0)
+    box("подпорная стена запад", X0 - 0.3, Y0, -0.06, X0, Y1, rw + 0.5, M["stone"], c)
+    box("земля за западной границей", X0 - 25, Y0 - 0.2, -0.4, X0 - 0.3, Y1 + 25, rw - 0.06, M["grass"], c)
     box("изгородь восток", X1 - 0.9, Y0 + 0.4, -0.06, X1 - 0.05, Y1 - 0.2, 1.9, M["hedge"], c)
     box("изгородь север", X0 + 0.2, Y1 - 0.8, -0.06, X1 - 0.9, Y1 - 0.05, 1.6, M["hedge"], c)
     # деревья
@@ -709,8 +770,10 @@ def build_site():
     cypress(X1 - 1.8, Y1 - 0.5, 6.5)
     cypress(X0 + 0.5, Y1 - 0.5, 6.8)
     olive(px1 - 0.5, py0 - 2.0 if py0 - 2.0 > Y0 + 1.2 else py1 + 2.2, 3.4, 1.5)
-    olive(X0 + 0.9, (Y0 + 0) / 2 - 1.0, 3.0, 1.2)
     olive(gx1 + 1.6, gy1 + 1.4, 3.2, 1.4)
+    th = s["thujas"]                                     # туи вдоль бассейна, равномерно по его длине
+    for i in range(th["n"]):
+        thuja(px0 + (px1 - px0) * (i + 0.5) / th["n"], th["y"], th["h"], th["r"])
 
 
 def lights_and_world():
