@@ -1,4 +1,4 @@
-# Загражье: дом из каменной руины
+# Занковичи: дом из каменной руины
 
 Черновой проект реконструкции каменного дома (K.O. Zankovići, Bar, парцела 1255):
 план этажей и 3D-модель в Blender. Всё строится скриптами из одного файла размеров.
@@ -12,6 +12,7 @@
    make plan      # только план: out/plan.png, out/plan.svg
    make render    # план + 3D + рендеры: out/house.blend, out/renders/*.png
    make views     # ракурсы для генерации: out/views/*.png (make views ONLY=04 — один)
+   make booklet   # клиентский PDF из текущего плана и принятых кадров
    make open      # открыть папку out/ в Finder
    ```
 
@@ -26,11 +27,23 @@
 | `plan.py` | план этажей → `out/plan.svg`, `out/plan.png`, `out/layout.json` |
 | `blender/build_house.py` | 3D-модель из `out/layout.json` → `out/house.blend`, `out/renders/` |
 | `codex/prompts.md` | промпты для генерации картинок по ракурсам `out/views/` |
+| `booklet.py` | сборка клиентского буклета → `output/pdf/zankovici-design-booklet.pdf` |
 | `out/` | всё сгенерированное (в git не идёт): план, рендеры, `views/`, результаты `codex/` |
 | `refs/` | фото руины, кадастр, эскиз, снимки с дрона (в git не идут) |
 
 Требуется: Python 3, Blender 5.2 (`/Applications/Blender.app`, путь можно поменять: `make render BLENDER=...`).
 PNG плана делается встроенными в macOS `qlmanage` и `sips`.
+
+## Сборка буклета
+
+`make booklet` берёт план варианта Б из `out/plan.svg` и `out/layout.json`, а изображения из `out/final/`.
+После изменения `params.json` сначала обновите план через `make plan`. После замены принятых кадров
+достаточно снова запустить `make booklet`.
+
+Команда использует библиотеки среды Codex, если они установлены. Для отдельной установки
+нужны Python с Pillow и ReportLab, Node.js с модулем `sharp` и шрифты Arial, Arial Bold и Georgia.
+Пути к Python и Node можно задать через `BOOKLET_PYTHON` и `BOOKLET_NODE`, к модулям Node через
+`NODE_PATH`, а к шрифтам через `BOOKLET_FONT_DIR`.
 
 ## Допущения черновика (не замерено)
 
